@@ -1,18 +1,21 @@
 import { useEffect, useState } from "react";
 import { db } from "../db/db";
 
-export default function AddWorkForm({ onWorkAdded }) {
+export default function AddWorkForm({
+  onWorkAdded,
+  editingWork,
+  setEditingWork,
+}) {
   const [workName, setWorkName] = useState("");
   const [formula, setFormula] = useState("a * b");
   const [unit, setUnit] = useState("m2");
   const [works, setWorks] = useState([]);
   const [priceForUnit, setPriceForUnit] = useState();
+  const [variables, setVariables] = useState([]);
 
   useEffect(() => {
-    if (unit === "m2" || unit === "hr") {
+    if (unit === "m2" || unit === "hr" || unit === "m3") {
       setFormula("a * U");
-    } else if (unit === "m3") {
-      setFormula("a * b * U");
     } else {
       setFormula("");
     }
@@ -28,20 +31,52 @@ export default function AddWorkForm({ onWorkAdded }) {
     console.log(db);
   }, []);
 
+  const exactVariables = (formula) => {
+    const matches = formula.match(/[a-zA-Z]+/g) || [];
+    return [...new Set(matches)];
+  };
+
+  const handleFormulaChange = (e) => {
+    const newFormula = e.target.value;
+    setFormula(newFormula);
+    setVariables(exactVariables(newFormula));
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (!workName.trim()) return;
+    if (!workName.trim() || !formula.trim()) return;
 
-    const newWork = { name: workName, formula, unit, priceForUnit };
-    await db.works.add(newWork);
-    setWorks([...works, newWork]);
+    if (editingWork) {
+      await db.works.update(editingWork.id, {
+        name: workName,
+        formula,
+        unit,
+        priceForUnit,
+        variables,
+      });
+    } else {
+      const newWork = {
+        name: workName,
+        formula,
+        unit,
+        priceForUnit,
+        variables,
+      };
+      const id = await db.works.add(newWork);
+      setWorks((prevWorks) => [...prevWorks, { ...newWork, id }]);
+    }
+
     setWorkName("");
-    setFormula("a * b");
+    setFormula("a * U");
     setUnit("m2");
-    setPriceForUnit();
+    setPriceForUnit("");
+    setVariables([]);
+    setEditingWork(null);
 
-    onWorkAdded();
+    if (onWorkAdded) {
+      onWorkAdded();
+    }
   };
 
   return (
@@ -58,10 +93,17 @@ export default function AddWorkForm({ onWorkAdded }) {
               className="border p-2 w-full"
               value={workName}
               onChange={(e) => setWorkName(e.target.value)}
+              required
             />
           </div>
 
-          <select className="border h-10 cursor-pointer" name="unit" id="" onChange={(e) => setUnit(e.target.value)}>
+          <select
+            className="border h-10 cursor-pointer"
+            name="unit"
+            id=""
+            onChange={(e) => setUnit(e.target.value)}
+            required
+          >
             <option value="m2">m2</option>
             <option value="m3">m3</option>
             <option value="hr">hr</option>
@@ -76,7 +118,8 @@ export default function AddWorkForm({ onWorkAdded }) {
               placeholder="Formula (e.g: a * U)"
               className="border p-2 w-full"
               value={formula}
-              onChange={(e) => setFormula(e.target.value)}
+              onChange={handleFormulaChange}
+              required
             />
           </div>
 
@@ -89,9 +132,17 @@ export default function AddWorkForm({ onWorkAdded }) {
               className="border p-2 w-full"
               value={priceForUnit}
               onChange={(e) => setPriceForUnit(e.target.value)}
+              required
             />
           </div>
         </div>
+
+        {variables.length > 0 && (
+          <div className="mt-2 p-2 bg-gray-100 rounded">
+            <h3 className="font-bold">Знайдені змінні:</h3>
+            <p>{variables.join(", ")}</p>
+          </div>
+        )}
 
         <button
           type="submit"
