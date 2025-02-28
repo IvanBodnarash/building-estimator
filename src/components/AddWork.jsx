@@ -93,6 +93,7 @@ export default function AddWorkForm({
               className="border p-2 w-full"
               value={workName}
               onChange={(e) => setWorkName(e.target.value)}
+              autoComplete="off"
               required
             />
           </div>
@@ -119,6 +120,7 @@ export default function AddWorkForm({
               className="border p-2 w-full"
               value={formula}
               onChange={handleFormulaChange}
+              autoComplete="off"
               required
             />
           </div>
@@ -132,6 +134,7 @@ export default function AddWorkForm({
               className="border p-2 w-full"
               value={priceForUnit}
               onChange={(e) => setPriceForUnit(e.target.value)}
+              autoComplete="off"
               required
             />
           </div>
