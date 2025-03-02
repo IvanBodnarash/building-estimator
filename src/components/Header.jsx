@@ -6,7 +6,7 @@ export default function Header() {
       <h1 className="text-3xl font-black italic">Building Estimator</h1>
       <div className="flex flex-row gap-4">
         <NavLink to="/">Home</NavLink>
-        <NavLink to="/create-new">Create New</NavLink>
+        {/* <NavLink to="/create-new">Create New</NavLink> */}
       </div>
     </div>
   );

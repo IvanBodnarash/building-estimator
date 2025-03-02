@@ -3,6 +3,8 @@ import { db } from "../db/db";
 import { evaluate } from "mathjs";
 
 import AddWorkForm from "./AddWork";
+import { useParams } from "react-router-dom";
+import generatePDF from "../utils/generatePDF";
 
 export default function Estimate() {
   const [works, setWorks] = useState([]);
@@ -16,6 +18,9 @@ export default function Estimate() {
   const [taxRate, setTaxRate] = useState(10);
   const [taxAmount, setTaxAmount] = useState(0);
 
+  const { estimateId } = useParams();
+  const [estimate, setEstimate] = useState(null);
+
   const loadWorks = async () => {
     const savedWorks = await db.works.toArray();
     setWorks(savedWorks);
@@ -24,6 +29,20 @@ export default function Estimate() {
   useEffect(() => {
     loadWorks();
   }, []);
+
+  useEffect(() => {
+    async function loadEstimate() {
+      const storedEstimate = await db.estimates.get(Number(estimateId));
+      if (!storedEstimate) {
+        alert("Estimate not found.");
+        return;
+      }
+      setEstimate(storedEstimate);
+      setTableRows(storedEstimate.works || []);
+    }
+
+    loadEstimate();
+  }, [estimateId]);
 
   useEffect(() => {
     const newTotal = tableRows.reduce((sum, row) => sum + (row.result || 0), 0);
@@ -104,7 +123,8 @@ export default function Estimate() {
   };
 
   const removeRow = (rowId) => {
-    setTableRows(tableRows.filter((row) => row.id !== rowId));
+    // setTableRows(tableRows.filter((row) => row.id !== rowId));
+    setTableRows((prevRows) => prevRows.filter((row) => row.id !== rowId));
   };
 
   const handleEdit = (row) => {
@@ -173,8 +193,32 @@ export default function Estimate() {
     );
   };
 
+  const handleSaveEstimate = async () => {
+    if (!estimate || tableRows.length === 0) {
+      alert("Please add at least one work to the estimate.");
+      return;
+    }
+
+    const updatedEstimate = {
+      ...estimate,
+      works: tableRows,
+    };
+
+    await db.estimates.update(Number(estimateId), updatedEstimate);
+    alert("Estimate saved successfully!");
+  };
+
+  if (!estimate) return <p>Loading...</p>;
+
   return (
-    <>
+    <div className="p-6">
+      <h1 className="text-3xl font-bold">{estimate.name}</h1>
+      <p className="text-cyan-400">
+        Created: {new Date(estimate.dateCreated).toLocaleString()}
+      </p>
+
+      <h2 className="text-2xl">Estimate Calculator</h2>
+
       <AddWorkForm
         onWorkAdded={loadWorks}
         editingWork={editingWork}
@@ -299,6 +343,23 @@ export default function Estimate() {
               {(total + taxAmount).toFixed(2)} €
             </span>
           </div>
+
+          <div className="flex flex-row">
+            <button
+              className="bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded cursor-pointer mt-4"
+              onClick={handleSaveEstimate}
+            >
+              Save Estimate
+            </button>
+            <button
+              className="bg-blue-700 hover:bg-blue-800 text-white py-2 px-4 rounded cursor-pointer mt-4"
+              onClick={() =>
+                generatePDF(estimate, tableRows, total, taxRate, taxAmount)
+              }
+            >
+              Generate Document
+            </button>
+          </div>
         </div>
 
         {isEditModalOpen && (
@@ -379,6 +440,6 @@ export default function Estimate() {
           </div>
         )}
       </div>
-    </>
+    </div>
   );
 }

@@ -5,6 +5,7 @@ import MainPage from "./pages/MainPage";
 import NewEstimate from "./pages/NewEstimate";
 
 import MainLayout from "./components/MainLayout";
+import EstimatePage from "./pages/EstimatePage";
 
 const router = createBrowserRouter([
   {
@@ -12,8 +13,9 @@ const router = createBrowserRouter([
     element: <MainLayout />,
     errorElement: <div>404</div>,
     children: [
-      { path: "/", element: <MainPage /> },
-      { path: "/create-new", element: <NewEstimate /> },
+      { path: "", element: <MainPage /> },
+      // { path: "create-new", element: <NewEstimate />, },
+      { path: "estimate/:estimateId", element: <NewEstimate /> },
     ],
   },
 ]);
