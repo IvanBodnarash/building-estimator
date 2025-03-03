@@ -1,13 +1,13 @@
-.close {
-  visibility: collapse;
-  opacity: 0;
-  max-height: 0;
-  transition: all 0.3s ease-in-out;
+.open {
+  max-height: 500px;
+  opacity: 1;
+  transition: max-height 0.5s ease-in-out, opacity 0.5s ease-in-out;
+  overflow: hidden;
 }
 
-.open {
-  visibility: visible;
-  opacity: 1;
-  max-height: 500px;
-  transition: all 0.3s ease-in-out;
+.close {
+  max-height: 0;
+  opacity: 0;
+  transition: max-height 0.5s ease-in-out, opacity 0.5s ease-in-out;
+  overflow: hidden;
 }

@@ -2,6 +2,8 @@ import { useEffect, useState } from "react";
 import { FaPlus } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
 import { db } from "../db/db";
+import formatDate from "../utils/formatDate";
+import EstimateCard from "../components/EstimateCard";
 
 export default function MainPage() {
   const navigate = useNavigate();
@@ -42,46 +44,32 @@ export default function MainPage() {
     loadEstimates();
   }
 
-  // function handleRedirect() {
-  //   navigate("/create-new");
-  // }
-
   return (
-    <div className="grid grid-cols-4 gap-3">
-      <h1>MainPage</h1>
-      <div
-        className="w-50 h-70 bg-cyan-800 flex flex-col justify-center items-center cursor-pointer hover:bg-cyan-700 hover:scale-103 hover:shadow-2xl transition-all rounded-xl"
-        onClick={() => setIsModalOpen(true)}
-      >
-        <div className="h-50 flex justify-center items-center">
-          <FaPlus className="text-white text-5xl" />
+    <div className="h-screen">
+      <ul className="flex flex-row flex-wrap gap-12">
+        <div
+          className="w-50 h-70 bg-cyan-800 flex flex-col justify-center items-center cursor-pointer hover:bg-cyan-700 hover:scale-103 hover:shadow-2xl transition-all rounded-xl"
+          onClick={() => setIsModalOpen(true)}
+        >
+          <div className="h-50 flex justify-center items-center">
+            <FaPlus className="text-white text-5xl" />
+          </div>
+          <h1 className="text-slate-200 text-2xl font-medium">Create New</h1>
         </div>
-        <h1 className="text-slate-200 text-2xl font-medium">Create New</h1>
-      </div>
-
-      {estimates.length === 0 ? (
-        <p className="text-slate-400">No estimates yet.</p>
-      ) : (
-        <ul>
-          {estimates.map((estimate) => (
-            <li key={estimate.id}>
-              <span
-                className="cursor-pointer"
-                onClick={() => navigate(`/estimate/${estimate.id}`)}
-              >
-                {estimate.name} -
-                {new Date(estimate.dateCreated).toLocaleString()}
-              </span>
-              <button
-                className="ml-2 bg-red-500 text-white px-2 py-1 rounded"
-                onClick={() => handleDeleteEstimate(estimate.id)}
-              >
-                Delete
-              </button>
-            </li>
-          ))}
-        </ul>
-      )}
+        {estimates.length === 0 ? (
+          <p className="text-slate-400">No estimates yet.</p>
+        ) : (
+          <>
+            {estimates.map((estimate) => (
+              <EstimateCard
+                key={estimate.id}
+                estimate={estimate}
+                handleDeleteEstimate={handleDeleteEstimate}
+              />
+            ))}
+          </>
+        )}
+      </ul>
 
       {isModalOpen && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center">
@@ -96,13 +84,13 @@ export default function MainPage() {
             />
             <div className="flex justify-end">
               <button
-                className="bg-gray-500 text-white px-4 py-2 rounded mr-2"
+                className="bg-gray-500 text-white px-4 py-2 rounded mr-2 cursor-pointer"
                 onClick={() => setIsModalOpen(false)}
               >
                 Cancel
               </button>
               <button
-                className="bg-blue-500 text-white px-4 py-2 rounded"
+                className="bg-blue-500 text-white px-4 py-2 rounded cursor-pointer"
                 onClick={handleSaveEstimate}
               >
                 Save

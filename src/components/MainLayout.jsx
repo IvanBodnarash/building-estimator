@@ -4,8 +4,7 @@ import Header from "./Header";
 
 export default function MainLayout() {
   return (
-    <div className="px-28 bg-slate-100 h-full">
-      <div>MainLayout</div>
+    <div className="px-34 bg-slate-100 h-full">
       <Header />
       <Outlet />
     </div>
