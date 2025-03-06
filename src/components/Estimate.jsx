@@ -37,6 +37,7 @@ export default function Estimate() {
 
   useEffect(() => {
     async function loadEstimate() {
+      console.log("Current estimateId:", estimateId);
       const storedEstimate = await db.estimates.get(Number(estimateId));
       if (!storedEstimate) {
         alert("Estimate not found.");
@@ -137,7 +138,17 @@ export default function Estimate() {
   };
 
   const handleSaveEdit = async () => {
-    if (!editingRow) return;
+    if (!editingRow || !editingRow.workId) {
+      console.error("Invalid editingRow or workId:", editingRow);
+      return;
+    }
+
+    const selectedWork = works.find((w) => w.id === editingRow.workId);
+
+    if (!selectedWork) {
+      console.error("Work not found:", editingRow.workId);
+      return;
+    }
 
     await db.works.update(editingRow.workId, {
       name: editingRow.workName,
@@ -158,7 +169,7 @@ export default function Estimate() {
               unit: editingRow.unit,
               priceForUnit: editingRow.priceForUnit,
               result: calculateFormula(selectedWork.formula, {
-                a: 1,
+                a: row.quantity || 1,
                 U: selectedWork.priceForUnit,
               }),
             }
@@ -170,23 +181,27 @@ export default function Estimate() {
   };
 
   const handleDelete = async (workId) => {
-    await db.works.delete(workId);
-    setWorks((prevWorks) => prevWorks.filter((w) => w.id !== workId));
-    setTableRows((prevRows) =>
-      prevRows.map((row) =>
-        row.workId === workId
-          ? {
-              ...row,
-              workId: "",
-              workName: "",
-              formula: "",
-              unit: "",
-              priceForUnit: "",
-              result: "",
-            }
-          : row
-      )
-    );
+    if (confirm("Are you sure you want to delete this work?")) {
+      setWorks((prevWorks) => prevWorks.filter((w) => w.id !== workId));
+      setTableRows((prevRows) =>
+        prevRows.map((row) =>
+          row.workId === workId
+            ? {
+                ...row,
+                workId: "",
+                workName: "",
+                formula: "",
+                unit: "",
+                priceForUnit: "",
+                result: "",
+              }
+            : row
+        )
+      );
+      await db.works.delete(workId);
+    } else {
+      return;
+    }
   };
 
   const handleSaveEstimate = async () => {
@@ -207,7 +222,7 @@ export default function Estimate() {
   if (!estimate) return <p>Loading...</p>;
 
   return (
-    <div className="">
+    <div className="mx-38 border-x border-gray-700 px-4 py-8 overflow-hidden relative bg-gray-950/[2.5%] after:pointer-events-none after:absolute after:inset-0 after:rounded-lg after:inset-ring after:inset-ring-gray-950/5 bg-[radial-gradient(var(--pattern-fg)_1px,_transparent_0)] bg-[size:10px_10px] bg-fixed [--pattern-fg:var(--color-gray-300)]">
       <div className="flex flex-col gap-4">
         <h1 className="text-3xl font-bold">{estimate.name}</h1>
         <p className="text-cyan-500">
@@ -222,7 +237,7 @@ export default function Estimate() {
 
       {/* <h2 className="text-2xl">Estimate Calculator</h2> */}
 
-      <div className="p-4 border rounded-lg shadow-lg bg-white mt-6">
+      <div className="p-4 border bg-white mt-6">
         <h2 className="text-xl font-bold mb-4">Estimate Calculator</h2>
 
         <table className="w-full">
@@ -244,7 +259,7 @@ export default function Estimate() {
                 <td className="border p-2 text-center">
                   {row.id === 0 ? "1" : row.id}
                 </td>
-                <td className="p-2 flex gap-2 justify-between items-center">
+                <td className="p-2 flex gap-2 flex-wrap justify-between items-center">
                   <select
                     className="border rounded p-2 flex items-center justify-center"
                     onChange={(e) => handleWorkSelect(row.id, e.target.value)}
@@ -267,7 +282,11 @@ export default function Estimate() {
                       >
                         <MdModeEdit />
                       </button>
-                      <button className="cursor-pointer text-2xl" onClick={() => handleDelete(row.workId)} title="Delete">
+                      <button
+                        className="cursor-pointer text-2xl"
+                        onClick={() => handleDelete(row.workId)}
+                        title="Delete"
+                      >
                         <RiDeleteBin2Fill />
                       </button>
                     </div>
@@ -437,7 +456,7 @@ export default function Estimate() {
                 </button>
                 <button
                   className="px-4 py-2 rounded mr-2"
-                  onClick={() => handleSaveEdit()}
+                  onClick={handleSaveEdit}
                 >
                   Save
                 </button>

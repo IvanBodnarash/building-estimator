@@ -8,7 +8,8 @@ const generatePDF = (estimate, tableRows, total, taxRate, taxAmount) => {
   }
 
   const doc = new jsPDF();
-  doc.setFont("helvetica");
+  doc.addFont("../../public/fonts/Roboto-Regular.ttf", "Roboto", "normal");
+  doc.setFont("Roboto");
 
   // Document header
   doc.setFontSize(18);
@@ -30,8 +31,6 @@ const generatePDF = (estimate, tableRows, total, taxRate, taxAmount) => {
     "Price per Unit (€)",
     "Total (€)",
   ];
-  console.log(tableRows);
-  console.log(jsPDF.API);
   const tableRowsPDF = tableRows.map((row) => [
     row.id,
     row.workName,
@@ -41,8 +40,8 @@ const generatePDF = (estimate, tableRows, total, taxRate, taxAmount) => {
     Number(row.result || 0).toFixed(2),
   ]);
 
-  console.log(tableColumnPDF);
-  console.log(tableRowsPDF);
+  console.log("Table Rows:", tableRows);
+  console.log("Table Rows Processed for PDF:", tableRowsPDF);
   autoTable(doc, {
     head: [tableColumnPDF],
     body: tableRowsPDF,
@@ -52,11 +51,12 @@ const generatePDF = (estimate, tableRows, total, taxRate, taxAmount) => {
       textColor: [0, 0, 0],
       lineColor: [0, 0, 0],
       lineWidth: 0.3,
-      // fontSize: 12,
-      // cellPadding: 3,
-      // overflow: "linebreak",
+      font: "Roboto",
+      fontStyle: "normal",
     },
   });
+
+  console.log(doc.getFontList());
 
   // Conclusions
   let finalY = doc.lastAutoTable.finalY + 10;
@@ -85,9 +85,6 @@ const generatePDF = (estimate, tableRows, total, taxRate, taxAmount) => {
     }
   );
 
-  // Saving PDF || Viewing PDF in new tab
-  // doc.save(`Estimate_${estimate.name}.pdf`);
-  // doc.autoPrint();
   window.open(doc.output("bloburl"), "_blank");
 };
 
