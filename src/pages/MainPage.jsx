@@ -1,12 +1,14 @@
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { FaPlus } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
 import { db } from "../db/db";
 import formatDate from "../utils/formatDate";
 import EstimateCard from "../components/EstimateCard";
+import { LanguageContext } from "../context/LanguageContext";
 
 export default function MainPage() {
   const navigate = useNavigate();
+  const { t } = useContext(LanguageContext);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [estimateName, setEstimateName] = useState("");
   const [estimates, setEstimates] = useState([]);
@@ -39,7 +41,7 @@ export default function MainPage() {
   }
 
   async function handleDeleteEstimate(estimateId) {
-    if (confirm("Are you sure you want to delete this estimate?")) {
+    if (confirm(t("deleteEstimateConfirmation"))) {
       await db.estimates.delete(estimateId);
       await db.estimateWorks.where("estimateId").equals(estimateId).delete();
       loadEstimates();
@@ -58,10 +60,12 @@ export default function MainPage() {
           <div className="h-50 flex justify-center items-center">
             <FaPlus className="text-white text-5xl" />
           </div>
-          <h1 className="text-slate-200 text-2xl font-medium">Create New</h1>
+          <h1 className="text-slate-200 text-2xl font-medium">
+            {t("createNew")}
+          </h1>
         </div>
         {estimates.length === 0 ? (
-          <p className="text-slate-400">No estimates yet.</p>
+          <p className="text-slate-400">{t("noEstimates")}</p>
         ) : (
           <>
             {estimates.map((estimate) => (
@@ -78,11 +82,11 @@ export default function MainPage() {
       {isModalOpen && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center">
           <div className="bg-white p-6 rounded-lg shadow-lg w-1/3">
-            <h2 className="text-xl font-bold mb-4">New Estimate</h2>
+            <h2 className="text-xl font-bold mb-4">{t("newEstimate")}</h2>
             <input
               type="text"
               className="border p-2 w-full mb-4"
-              placeholder="Enter estimate name"
+              placeholder={t("enterEstimateName")}
               value={estimateName}
               onChange={(e) => setEstimateName(e.target.value)}
             />
@@ -91,13 +95,13 @@ export default function MainPage() {
                 className="bg-gray-500 text-white px-4 py-2 rounded mr-2 cursor-pointer"
                 onClick={() => setIsModalOpen(false)}
               >
-                Cancel
+                {t("cancel")}
               </button>
               <button
                 className="bg-blue-500 text-white px-4 py-2 rounded cursor-pointer"
                 onClick={handleSaveEstimate}
               >
-                Save
+                {t("save")}
               </button>
             </div>
           </div>

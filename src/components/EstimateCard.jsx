@@ -1,9 +1,12 @@
 import { IoDocumentTextSharp } from "react-icons/io5";
 import { useNavigate } from "react-router-dom";
 import formatDate from "../utils/formatDate";
+import { useContext } from "react";
+import { LanguageContext } from "../context/LanguageContext";
 
 export default function EstimateCard({ estimate, handleDeleteEstimate }) {
   const navigate = useNavigate();
+  const { t } = useContext(LanguageContext);
 
   return (
     <>
@@ -12,7 +15,7 @@ export default function EstimateCard({ estimate, handleDeleteEstimate }) {
           className="ml-2 bg-red-500 text-white absolute top-2 right-2 px-2 py-1 rounded cursor-pointer hover:bg-red-600 transition-all"
           onClick={() => handleDeleteEstimate(estimate.id)}
         >
-          Delete
+          {t("delete")}
         </button>
         <div onClick={() => navigate(`/estimate/${estimate.id}`)}>
           <div className="h-50 flex justify-center items-center">

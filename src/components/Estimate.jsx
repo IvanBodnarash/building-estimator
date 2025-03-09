@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { db } from "../db/db";
 import { evaluate } from "mathjs";
 
@@ -10,6 +10,7 @@ import { IoMdAdd } from "react-icons/io";
 import { MdModeEdit } from "react-icons/md";
 import { RiDeleteBin2Fill } from "react-icons/ri";
 import formatDate from "../utils/formatDate";
+import { LanguageContext } from "../context/LanguageContext";
 
 export default function Estimate() {
   const [works, setWorks] = useState([]);
@@ -26,6 +27,9 @@ export default function Estimate() {
   const { estimateId } = useParams();
   const [estimate, setEstimate] = useState(null);
 
+  const { estimateLanguage, setEstimateLanguage, t, estimateT } =
+    useContext(LanguageContext);
+
   const loadWorks = async () => {
     const savedWorks = await db.works.toArray();
     setWorks(savedWorks);
@@ -40,7 +44,7 @@ export default function Estimate() {
       console.log("Current estimateId:", estimateId);
       const storedEstimate = await db.estimates.get(Number(estimateId));
       if (!storedEstimate) {
-        alert("Estimate not found.");
+        alert(t("estimateNotFound"));
         return;
       }
       setEstimate(storedEstimate);
@@ -181,7 +185,7 @@ export default function Estimate() {
   };
 
   const handleDelete = async (workId) => {
-    if (confirm("Are you sure you want to delete this work?")) {
+    if (confirm(t("deleteWorkConfirmation"))) {
       setWorks((prevWorks) => prevWorks.filter((w) => w.id !== workId));
       setTableRows((prevRows) =>
         prevRows.map((row) =>
@@ -206,7 +210,7 @@ export default function Estimate() {
 
   const handleSaveEstimate = async () => {
     if (!estimate || tableRows.length === 0) {
-      alert("Please add at least one work to the estimate.");
+      alert(t("addingOneWorkAlert"));
       return;
     }
 
@@ -216,17 +220,17 @@ export default function Estimate() {
     };
 
     await db.estimates.update(Number(estimateId), updatedEstimate);
-    alert("Estimate saved successfully!");
+    alert(t("savingEstimateSuccess"));
   };
 
-  if (!estimate) return <p>Loading...</p>;
+  if (!estimate) return <p>{t("loading")}</p>;
 
   return (
     <div className="mx-38 border-x border-gray-700 px-4 py-8 overflow-hidden relative bg-gray-950/[2.5%] after:pointer-events-none after:absolute after:inset-0 after:rounded-lg after:inset-ring after:inset-ring-gray-950/5 bg-[radial-gradient(var(--pattern-fg)_1px,_transparent_0)] bg-[size:10px_10px] bg-fixed [--pattern-fg:var(--color-gray-300)]">
       <div className="flex flex-col gap-4">
-        <h1 className="text-3xl font-bold">{estimate.name}</h1>
-        <p className="text-cyan-500">
-          Created: {formatDate(new Date(estimate.dateCreated))}
+        <h1 className="text-4xl text-cyan-950/80 font-bold">{estimate.name}</h1>
+        <p className="text-xl font-bold text-cyan-800/60">
+          {t("created")}: {formatDate(new Date(estimate.dateCreated))}
         </p>
         <AddWorkForm
           onWorkAdded={loadWorks}
@@ -237,25 +241,41 @@ export default function Estimate() {
 
       {/* <h2 className="text-2xl">Estimate Calculator</h2> */}
 
-      <div className="p-4 border bg-white mt-6">
-        <h2 className="text-xl font-bold mb-4">Estimate Calculator</h2>
+      <div className="p-4 border border-slate-500 bg-white mt-6 mb-8">
+        <div className="flex opacity-80 justify-between items-center mb-4">
+          <h2 className="text-xl font-bold">{t("estimateCalculator")}</h2>
+
+          <div className="">
+            <label className="mr-2">{t("estimateLanguage")}:</label>
+            <select
+              className="p-2 outline-none"
+              value={estimateLanguage}
+              onChange={(e) => setEstimateLanguage(e.target.value)}
+            >
+              <option value="en">EN</option>
+              <option value="es">ES</option>
+              <option value="uk">UK</option>
+              <option value="ru">RU</option>
+            </select>
+          </div>
+        </div>
 
         <table className="w-full">
           <thead>
-            <tr className="">
+            <tr className="opacity-70">
               <th className="border p-2">ID</th>
-              <th className="border p-2">Name</th>
-              <th className="border p-2">Formula</th>
-              <th className="border p-2">Unit</th>
-              <th className="border p-2">Quantity</th>
-              <th className="border p-2">Price for Unit</th>
-              <th className="border p-2">Result</th>
-              <th className="border p-2">Actions</th>
+              <th className="border p-2">{estimateT("workName")}</th>
+              <th className="border p-2">{estimateT("formula")}</th>
+              <th className="border p-2">{estimateT("unit")}</th>
+              <th className="border p-2">{estimateT("quantity")}</th>
+              <th className="border p-2">{estimateT("priceForUnit")}</th>
+              <th className="border p-2">{estimateT("result")}</th>
+              <th className="border p-2">{estimateT("actions")}</th>
             </tr>
           </thead>
           <tbody>
             {tableRows.map((row) => (
-              <tr key={row.id} className="border">
+              <tr key={row.id} className="border opacity-70">
                 <td className="border p-2 text-center">
                   {row.id === 0 ? "1" : row.id}
                 </td>
@@ -265,7 +285,7 @@ export default function Estimate() {
                     onChange={(e) => handleWorkSelect(row.id, e.target.value)}
                     value={row.workId || ""}
                   >
-                    <option value="">Choose a work</option>
+                    <option value="">{t("selectWork")}</option>
                     {works.map((work) => (
                       <option key={work.id} value={work.id}>
                         {work.name}
@@ -278,14 +298,14 @@ export default function Estimate() {
                       <button
                         className="cursor-pointer text-2xl"
                         onClick={() => handleEdit(row)}
-                        title="Edit"
+                        title={t("edit")}
                       >
                         <MdModeEdit />
                       </button>
                       <button
                         className="cursor-pointer text-2xl"
                         onClick={() => handleDelete(row.workId)}
-                        title="Delete"
+                        title={t("delete")}
                       >
                         <RiDeleteBin2Fill />
                       </button>
@@ -319,6 +339,7 @@ export default function Estimate() {
                   <button
                     onClick={() => removeRow(row.id)}
                     className="text-black hover:text-red-800 cursor-pointer"
+                    title={t("delete")}
                   >
                     ✖
                   </button>
@@ -331,20 +352,20 @@ export default function Estimate() {
         <div className="flex items-center justify-center">
           <button
             onClick={addRow}
-            className="bg-cyan-800 hover:bg-cyan-700 text-white py-2 px-24 rounded-2xl m-2 cursor-pointer"
+            className="bg-cyan-800 hover:bg-cyan-700 text-white py-2 px-24 rounded-2xl m-2 cursor-pointer opacity-80"
           >
             <IoMdAdd size={18} className="" />
           </button>
         </div>
 
-        <div className="">
+        <div className="opacity-80">
           <div className="flex justify-between items-center">
             <h3>Total:</h3>
             <h3>{total.toFixed(2)} €</h3>
           </div>
 
           <div className="flex justify-between items-center">
-            <label>Tax (%):</label>
+            <label>{t("tax")} (%):</label>
             <input
               type="number"
               className="border p-2 w-16 outline-none"
@@ -358,12 +379,12 @@ export default function Estimate() {
           </div>
 
           <div className="flex justify-between items-center">
-            <h3>Tax Amount:</h3>
+            <h3>{t("taxAmount")}:</h3>
             <h3>{taxAmount.toFixed(2)} €</h3>
           </div>
 
           <div className="flex justify-between items-center mt-4 p-2 bg-gray-100 rounded-lg">
-            <h3 className="text-xl font-bold">Total (With Tax):</h3>
+            <h3 className="text-xl font-bold">{t("totalWithTax")}:</h3>
             <span className="text-xl text-green-600 font-bold">
               {(total + taxAmount).toFixed(2)} €
             </span>
@@ -374,15 +395,15 @@ export default function Estimate() {
               className="bg-cyan-800 hover:bg-cyan-600 text-white py-2 px-4 rounded cursor-pointer mt-4"
               onClick={handleSaveEstimate}
             >
-              Save Estimate
+              {t("saveEstimate")}
             </button>
             <button
               className="bg-cyan-800 hover:bg-cyan-600 text-white py-2 px-4 rounded cursor-pointer mt-4"
               onClick={() =>
-                generatePDF(estimate, tableRows, total, taxRate, taxAmount)
+                generatePDF(estimate, tableRows, total, taxRate, taxAmount, estimateLanguage)
               }
             >
-              Generate Document
+              {t("generateDocument")}
             </button>
           </div>
         </div>
@@ -390,8 +411,8 @@ export default function Estimate() {
         {isEditModalOpen && (
           <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center">
             <div className="bg-white p-6 rounded-lg shadow-lg w-1/3">
-              <h2 className="text-xl">Edit Work</h2>
-              <label htmlFor="name">Work Name</label>
+              <h2 className="text-xl">{t("editWork")}</h2>
+              <label htmlFor="name">{t("workName")}</label>
               <input
                 type="text"
                 name="name"
@@ -404,7 +425,7 @@ export default function Estimate() {
                   }))
                 }
               />
-              <label htmlFor="formula">Formula</label>
+              <label htmlFor="formula">{t("formula")}</label>
               <input
                 type="text"
                 name="formula"
@@ -417,7 +438,7 @@ export default function Estimate() {
                   }))
                 }
               />
-              <label htmlFor="unit">Unit</label>
+              <label htmlFor="unit">{t("unit")}</label>
               <select
                 className="border p-2 w-full cursor-pointer"
                 name="unit"
@@ -432,9 +453,9 @@ export default function Estimate() {
                 <option value="m2">m2</option>
                 <option value="m3">m3</option>
                 <option value="hr">hr</option>
-                <option value="custom">Custom</option>
+                <option value="custom">{t("custom")}</option>
               </select>
-              <label htmlFor="priceForUnit">Price For Unit</label>
+              <label htmlFor="priceForUnit">{t("priceForUnit")}</label>
               <input
                 type="number"
                 name="priceForUnit"
@@ -452,13 +473,13 @@ export default function Estimate() {
                   className="px-4 py-2 rounded mr-2"
                   onClick={() => setIsEditModalOpen(false)}
                 >
-                  Cancel
+                  {t("cancel")}
                 </button>
                 <button
                   className="px-4 py-2 rounded mr-2"
                   onClick={handleSaveEdit}
                 >
-                  Save
+                  {t("save")}
                 </button>
               </div>
             </div>

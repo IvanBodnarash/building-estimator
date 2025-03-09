@@ -1,6 +1,7 @@
 import React from "react";
 import { Outlet } from "react-router-dom";
 import Header from "./Header";
+import Footer from "./Footer";
 
 export default function MainLayout() {
   return (
@@ -19,6 +20,10 @@ export default function MainLayout() {
       ></div>
 
       <Outlet />
+
+      {/* <div className="border-1 border-gray-600 w-full absolute"></div>
+
+      <Footer /> */}
     </div>
   );
 }

@@ -6,6 +6,7 @@ import NewEstimate from "./pages/NewEstimate";
 
 import MainLayout from "./components/MainLayout";
 import EstimatePage from "./pages/EstimatePage";
+import { LanguageProvider } from "./context/LanguageContext";
 
 const router = createBrowserRouter([
   {
@@ -21,5 +22,9 @@ const router = createBrowserRouter([
 ]);
 
 export default function App() {
-  return <RouterProvider router={router} />;
+  return (
+    <LanguageProvider>
+      <RouterProvider router={router} />
+    </LanguageProvider>
+  );
 }

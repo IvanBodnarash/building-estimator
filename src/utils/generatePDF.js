@@ -1,11 +1,25 @@
 import { jsPDF } from "jspdf";
 import { autoTable } from "jspdf-autotable";
 import formatDate from "./formatDate";
+import translations from "../translations/translations";
 
-const generatePDF = (estimate, tableRows, total, taxRate, taxAmount) => {
+const generatePDF = (
+  estimate,
+  tableRows,
+  total,
+  taxRate,
+  taxAmount,
+  estimateLanguage
+) => {
   if (!estimate || tableRows.length === 0) {
-    alert("Estimate is empty. Add some rows");
+    alert(
+      translations[estimateLanguage]?.emptyEstimate ||
+        "Estimate is empty. Add some rows"
+    );
+    return;
   }
+
+  const t = translations[estimateLanguage] || translations["en"];
 
   const doc = new jsPDF();
   doc.addFont("../../public/fonts/Roboto-Regular.ttf", "Roboto", "normal");
@@ -13,23 +27,23 @@ const generatePDF = (estimate, tableRows, total, taxRate, taxAmount) => {
 
   // Document header
   doc.setFontSize(18);
-  doc.text(`Estimate: ${estimate.name}`, 14, 15);
+  doc.text(`${t.estimate}: ${estimate.name}`, 14, 15);
 
   // Executor data
-  doc.setFontSize(12);
-  doc.text("Contractor: [Company Name]", 14, 25);
-  doc.text("Address: [Address]", 14, 32);
-  doc.text("Phone: [+123445678]", 14, 39);
-  doc.text(`Date: ${formatDate(new Date())}`, 14, 46);
+  doc.setFontSize(10);
+  doc.text(`${t.contractor}: [Company Name]`, 14, 25);
+  doc.text(`${t.address}: [Address]`, 14, 32);
+  doc.text(`${t.phone}: [+123445678]`, 14, 39);
+  doc.text(`${t.date}: ${formatDate(new Date())}`, 14, 46);
 
   // Estimate table
   const tableColumnPDF = [
     "ID",
-    "Work",
-    "Unit",
-    "Quantity",
-    "Price per Unit (€)",
-    "Total (€)",
+    t.workName,
+    t.unit,
+    t.quantity,
+    `${t.priceForUnit} (€)`,
+    `${t.total} (€)`,
   ];
   const tableRowsPDF = tableRows.map((row) => [
     row.id,
@@ -40,8 +54,6 @@ const generatePDF = (estimate, tableRows, total, taxRate, taxAmount) => {
     Number(row.result || 0).toFixed(2),
   ]);
 
-  console.log("Table Rows:", tableRows);
-  console.log("Table Rows Processed for PDF:", tableRowsPDF);
   autoTable(doc, {
     head: [tableColumnPDF],
     body: tableRowsPDF,
@@ -63,21 +75,21 @@ const generatePDF = (estimate, tableRows, total, taxRate, taxAmount) => {
   const pageWidth = doc.internal.pageSize.width;
   const marginRight = 14;
 
-  doc.setFontSize(12);
+  doc.setFontSize(10);
 
   const rightAlignX = pageWidth - marginRight;
 
-  doc.text(`Subtotal: ${total.toFixed(2)} €`, rightAlignX, finalY, {
+  doc.text(`${t.subtotal}: ${total.toFixed(2)} €`, rightAlignX, finalY, {
     align: "right",
   });
   doc.text(
-    `Tax: (${taxRate}%): ${taxAmount.toFixed(2)} €`,
+    `${t.tax}: (${taxRate}%): ${taxAmount.toFixed(2)} €`,
     rightAlignX,
     finalY + 7,
     { align: "right" }
   );
   doc.text(
-    `Total (With Tax): ${(total + taxAmount).toFixed(2)} €`,
+    `${t.totalWithTax}: ${(total + taxAmount).toFixed(2)} €`,
     rightAlignX,
     finalY + 14,
     {
