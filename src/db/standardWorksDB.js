@@ -53,10 +53,10 @@ const standardWorksDB = [
   },
   {
     id: 5,
-    category: "Demolishing",
+    category: "Demolition",
     translations: {
-      en: "Demolishing",
-      es: "Deminando",
+      en: "Demolition",
+      es: "Demolición",
       uk: "Демонтаж",
       ru: "Демонтаж",
     },

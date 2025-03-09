@@ -1,5 +1,6 @@
 import { useContext, useEffect, useState } from "react";
 import { db } from "../db/db";
+import standardWorksDB from "../db/standardWorksDB";
 import { evaluate } from "mathjs";
 
 import AddWorkForm from "./AddWork";
@@ -11,6 +12,8 @@ import { MdModeEdit } from "react-icons/md";
 import { RiDeleteBin2Fill } from "react-icons/ri";
 import formatDate from "../utils/formatDate";
 import { LanguageContext } from "../context/LanguageContext";
+import translations from "../translations/translations";
+import { categories } from "../db/categoriesDB";
 
 export default function Estimate() {
   const [works, setWorks] = useState([]);
@@ -32,7 +35,14 @@ export default function Estimate() {
 
   const loadWorks = async () => {
     const savedWorks = await db.works.toArray();
-    setWorks(savedWorks);
+
+    if (savedWorks.length === 0) {
+      await db.works.bulkAdd(standardWorksDB);
+      console.log("✅ Standard works added!");
+    }
+
+    const updatedWorks = await db.works.toArray();
+    setWorks(updatedWorks);
   };
 
   useEffect(() => {
@@ -62,6 +72,22 @@ export default function Estimate() {
     setTaxAmount(newTaxAmount);
   }, [tableRows, taxRate]);
 
+  useEffect(() => {
+    setTableRows((prevRows) =>
+      prevRows.map((row) => {
+        const selectedWork = works.find((w) => w.id === row.workId);
+        return selectedWork
+          ? {
+              ...row,
+              workName:
+                selectedWork.translations[estimateLanguage] ||
+                selectedWork.name,
+            }
+          : row;
+      })
+    );
+  }, [estimateLanguage, works]);
+
   const addRow = () => {
     setTableRows([
       ...tableRows,
@@ -88,7 +114,11 @@ export default function Estimate() {
           ? {
               ...row,
               workId: selectedWork.id,
-              workName: selectedWork.name,
+              workName:
+                selectedWork.translations[estimateLanguage] ||
+                selectedWork.name ||
+                "Unnamed Work",
+              category: selectedWork.category,
               formula: selectedWork.formula,
               unit: selectedWork.unit,
               priceForUnit: selectedWork.priceForUnit || 0,
@@ -122,6 +152,15 @@ export default function Estimate() {
       )
     );
   };
+
+  const categorizedWorks = works.reduce((acc, work) => {
+    const category = work.category || "Other Works";
+    if (!acc[category]) {
+      acc[category] = [];
+    }
+    acc[category].push(work);
+    return acc;
+  }, {});
 
   const calculateFormula = (formula, variables) => {
     if (!formula) return 0;
@@ -194,6 +233,7 @@ export default function Estimate() {
                 ...row,
                 workId: "",
                 workName: "",
+                category: "",
                 formula: "",
                 unit: "",
                 priceForUnit: "",
@@ -286,11 +326,28 @@ export default function Estimate() {
                     value={row.workId || ""}
                   >
                     <option value="">{t("selectWork")}</option>
-                    {works.map((work) => (
+                    {Object.keys(categorizedWorks).map((categoryKey) => {
+                      const categoryTranslation =
+                        categories.find((cat) => cat.category === categoryKey)
+                          ?.translations?.[estimateLanguage] || categoryKey;
+
+                      return (
+                        <optgroup key={categoryKey} label={categoryTranslation}>
+                          {categorizedWorks[categoryKey].map((work) => (
+                            <option key={work.id} value={work.id}>
+                              {work.translations?.[estimateLanguage] ||
+                                work.name ||
+                                "Unnamed Work"}
+                            </option>
+                          ))}
+                        </optgroup>
+                      );
+                    })}
+                    {/* {works.map((work) => (
                       <option key={work.id} value={work.id}>
                         {work.name}
                       </option>
-                    ))}
+                    ))} */}
                   </select>
 
                   {row.workId && (
@@ -400,7 +457,14 @@ export default function Estimate() {
             <button
               className="bg-cyan-800 hover:bg-cyan-600 text-white py-2 px-4 rounded cursor-pointer mt-4"
               onClick={() =>
-                generatePDF(estimate, tableRows, total, taxRate, taxAmount, estimateLanguage)
+                generatePDF(
+                  estimate,
+                  tableRows,
+                  total,
+                  taxRate,
+                  taxAmount,
+                  estimateLanguage
+                )
               }
             >
               {t("generateDocument")}

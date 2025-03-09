@@ -1,16 +1,18 @@
 import { useContext, useEffect, useState } from "react";
 import { db } from "../db/db";
-import standardWorksDB from "../db/standardWorksDB";
+// import standardWorksDB from "../db/standardWorksDB";
+import { categories } from "../db/categoriesDB";
 
 import classes from "./AddWork.module.css";
 import { LanguageContext } from "../context/LanguageContext";
+import standardWorksDB from "../db/standardWorksDB";
 
 export default function AddWorkForm({
   onWorkAdded,
   editingWork,
   setEditingWork,
 }) {
-  const { t } = useContext(LanguageContext);
+  const { t, interfaceLanguage } = useContext(LanguageContext);
   const [isOpen, setIsOpen] = useState(false);
   const [workName, setWorkName] = useState("");
   const [category, setCategory] = useState("");
@@ -27,9 +29,8 @@ export default function AddWorkForm({
   });
 
   const langTranslations = t("language");
-  console.log(langTranslations.uk);
 
-  const categories = [...new Set(standardWorksDB.map((work) => work.category))];
+  // const categories = [...new Set(categories.map((work) => work.category))];
 
   useEffect(() => {
     if (unit === "m2" || unit === "hr" || unit === "m3") {
@@ -39,15 +40,18 @@ export default function AddWorkForm({
     }
   }, [unit]);
 
-  useEffect(() => {
-    const loadWorks = async () => {
-      const savedWorks = await db.works.toArray();
-      setWorks(savedWorks);
-    };
+  // useEffect(() => {
+  //   const loadWorks = async () => {
+  //     const savedWorks = await db.works.toArray();
+  //     if (savedWorks.length === 0) {
+  //       await db.works.bulkAdd(standardWorksDB);
+  //     }
+  //     setWorks(savedWorks);
+  //   };
 
-    loadWorks();
-    console.log(db);
-  }, []);
+  //   loadWorks();
+  //   console.log(db);
+  // }, []);
 
   const toggleComponentOpening = () => {
     setIsOpen((prev) => !prev);
@@ -119,6 +123,7 @@ export default function AddWorkForm({
     setPriceForUnit("");
     setVariables([]);
     setEditingWork(null);
+    setCategory("");
     setTranslations({ en: "", es: "", uk: "", ru: "" });
 
     if (onWorkAdded) {
@@ -159,21 +164,25 @@ export default function AddWorkForm({
                 />
               </div>
 
-              {/* <div className="flex flex-col gap-2 w-full">
-                <label className="opacity-70" htmlFor="workName">
+              <div className="flex flex-col gap-2">
+                <label className="opacity-70" htmlFor="unit">
                   {t("category")}
                 </label>
-                <input
-                  type="text"
-                  id="workName"
-                  placeholder={t("category")}
-                  className="border p-2 w-full opacity-80"
-                  value={category}
+                <select
+                  className="border h-10 cursor-pointer opacity-80"
+                  name="category"
+                  id=""
                   onChange={(e) => setCategory(e.target.value)}
-                  autoComplete="off"
                   required
-                />
-              </div> */}
+                >
+                  <option className="" value="">{t("selectCategory")}</option>
+                  {categories.map((category) => (
+                    <option key={category.id} value={category.category}>
+                      {category.translations[interfaceLanguage]}
+                    </option>
+                  ))}
+                </select>
+              </div>
 
               <div className="flex flex-col gap-2">
                 <label className="opacity-70" htmlFor="unit">
@@ -238,9 +247,7 @@ export default function AddWorkForm({
                     <input
                       type="text"
                       className="w-64 border p-2 opacity-80"
-                      placeholder={`${t("workName")} (${t(
-                        `${lang}`
-                      )})`}
+                      placeholder={`${t("workName")} (${t(`${lang}`)})`}
                       value={translations[lang]}
                       onChange={(e) =>
                         handleTranslationChange(lang, e.target.value)
