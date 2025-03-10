@@ -15,6 +15,9 @@ import { LanguageContext } from "../context/LanguageContext";
 import translations from "../translations/translations";
 import { categories } from "../db/categoriesDB";
 
+import CustomWorkSelect from "./CustomWorkSelect";
+import WorkSelector from "./WorkSelector";
+
 export default function Estimate() {
   const [works, setWorks] = useState([]);
   const [tableRows, setTableRows] = useState([]);
@@ -315,12 +318,12 @@ export default function Estimate() {
           </thead>
           <tbody>
             {tableRows.map((row) => (
-              <tr key={row.id} className="border opacity-70">
+              <tr key={row.id} className="border">
                 <td className="border p-2 text-center">
                   {row.id === 0 ? "1" : row.id}
                 </td>
-                <td className="p-2 flex gap-2 flex-wrap justify-between items-center">
-                  <select
+                <td className="p-2 flex flex-row gap-2 justify-between items-center">
+                  {/* <select
                     className="border rounded p-2 flex items-center justify-center"
                     onChange={(e) => handleWorkSelect(row.id, e.target.value)}
                     value={row.workId || ""}
@@ -343,12 +346,21 @@ export default function Estimate() {
                         </optgroup>
                       );
                     })}
-                    {/* {works.map((work) => (
-                      <option key={work.id} value={work.id}>
-                        {work.name}
-                      </option>
-                    ))} */}
-                  </select>
+                  </select> */}
+
+                  {/* <CustomWorkSelect
+                    works={works}
+                    selectedWorkId={row.workId}
+                    onSelect={(workId) => handleWorkSelect(row.id, workId)}
+                    className="z-20"
+                  /> */}
+                  <WorkSelector
+                    works={works}
+                    categories={categories}
+                    estimateLanguage={estimateLanguage}
+                    handleWorkSelect={handleWorkSelect}
+                    row={row}
+                  />
 
                   {row.workId && (
                     <div className="flex space-x-4">

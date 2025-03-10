@@ -10,8 +10,11 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@headlessui/react": "^2.2.0",
+    "@heroicons/react": "^2.2.0",
     "@tailwindcss/vite": "^4.0.8",
     "dexie": "^4.0.11",
+    "framer-motion": "^12.4.11",
     "jspdf": "^3.0.0",
     "jspdf-autotable": "^5.0.2",
     "mathjs": "^14.2.1",
