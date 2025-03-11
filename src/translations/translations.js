@@ -55,6 +55,7 @@ const translations = {
     phone: "Phone",
     date: "Date",
     subtotal: "Subtotal",
+    settings: "Settings",
   },
   es: {
     home: "Inicio",
@@ -113,6 +114,7 @@ const translations = {
     phone: "Telefono",
     date: "Fecha",
     subtotal: "Subtotal",
+    settings: "Ajustes",
   },
   uk: {
     home: "Головна",
@@ -169,6 +171,7 @@ const translations = {
     phone: "Телефон",
     date: "Дата",
     subtotal: "Підсумок",
+    settings: "Налаштування",
   },
   ru: {
     home: "Главная",
@@ -225,6 +228,7 @@ const translations = {
     phone: "Телефон",
     date: "Дата",
     subtotal: "Итого",
+    settings: "Настройки",
   },
 };
 

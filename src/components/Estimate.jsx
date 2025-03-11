@@ -269,10 +269,10 @@ export default function Estimate() {
   if (!estimate) return <p>{t("loading")}</p>;
 
   return (
-    <div className="mx-38 border-x border-gray-700 px-4 py-8 overflow-hidden relative bg-gray-950/[2.5%] after:pointer-events-none after:absolute after:inset-0 after:rounded-lg after:inset-ring after:inset-ring-gray-950/5 bg-[radial-gradient(var(--pattern-fg)_1px,_transparent_0)] bg-[size:10px_10px] bg-fixed [--pattern-fg:var(--color-gray-300)]">
-      <div className="flex flex-col gap-4">
-        <h1 className="text-4xl text-cyan-950/80 font-bold">{estimate.name}</h1>
-        <p className="text-xl font-bold text-cyan-800/60">
+    <div className="lg:mx-38 md:mx-24 sm:mx-14 mx-6 border-x border-gray-700 px-4 py-8 overflow-hidden relative bg-gray-950/[2.5%] after:pointer-events-none after:absolute after:inset-0 after:rounded-lg after:inset-ring after:inset-ring-gray-950/5 bg-[radial-gradient(var(--pattern-fg)_1px,_transparent_0)] bg-[size:10px_10px] bg-fixed [--pattern-fg:var(--color-gray-300)]">
+      <div className="flex flex-col lg:gap-4 md:gap-3 sm:gap-2 gap-1">
+        <h1 className="lg:text-4xl md:text-3xl sm:text-2xl text-xl text-cyan-950/80 font-bold">{estimate.name}</h1>
+        <p className="lg:text-xl md:text-lg sm:text-base text-sm font-bold text-cyan-800/60">
           {t("created")}: {formatDate(new Date(estimate.dateCreated))}
         </p>
         <AddWorkForm
@@ -282,9 +282,7 @@ export default function Estimate() {
         />
       </div>
 
-      {/* <h2 className="text-2xl">Estimate Calculator</h2> */}
-
-      <div className="p-4 border border-slate-500 bg-white mt-6 mb-8">
+      <div className="p-4 border border-slate-500 bg-white mt-6 mb-8 overflow-x-auto">
         <div className="flex opacity-80 justify-between items-center mb-4">
           <h2 className="text-xl font-bold">{t("estimateCalculator")}</h2>
 
@@ -303,7 +301,7 @@ export default function Estimate() {
           </div>
         </div>
 
-        <table className="w-full">
+        <table className="w-full min-w-max border-collapse">
           <thead>
             <tr className="opacity-70">
               <th className="border p-2">ID</th>
@@ -316,7 +314,7 @@ export default function Estimate() {
               <th className="border p-2">{estimateT("actions")}</th>
             </tr>
           </thead>
-          <tbody>
+          <tbody className="sm:table-row-group">
             {tableRows.map((row) => (
               <tr key={row.id} className="border">
                 <td className="border p-2 text-center">
@@ -383,10 +381,10 @@ export default function Estimate() {
                 </td>
                 <td className="border p-2 text-center">{row.formula}</td>
                 <td className="border p-2 text-center">{row.unit}</td>
-                <td className="border">
+                <td className="flex justify-center">
                   <input
                     type="number"
-                    className="p-2 w-24 outline-none"
+                    className="p-2 w-16 text-center outline-none"
                     value={row.quantity === "" ? "" : row.quantity}
                     onChange={(e) =>
                       handleInputChange(row.id, "quantity", e.target.value)
@@ -396,7 +394,7 @@ export default function Estimate() {
                 <td className="border p-2">
                   <input
                     type="number"
-                    className="p-2 w-32 outline-none"
+                    className="p-2 w-18 outline-none"
                     value={row.priceForUnit === "" ? "" : row.priceForUnit}
                     onChange={(e) =>
                       handleInputChange(row.id, "priceForUnit", e.target.value)

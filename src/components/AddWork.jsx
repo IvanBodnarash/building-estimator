@@ -134,7 +134,7 @@ export default function AddWorkForm({
   return (
     <>
       <button
-        className="bg-cyan-900 p-4 opacity-80 text-white cursor-pointer w-42 rounded-md"
+        className="bg-cyan-900 lg:p-4 md:p-3 p-2 lg:text-[16px] md:text-sm text-xs opacity-80 text-white cursor-pointer lg:w-42 md:w-36 w-32 rounded-md"
         onClick={toggleComponentOpening}
       >
         {isOpen ? `${t("collapsed")}` : `${t("addWork")}`}

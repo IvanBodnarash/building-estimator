@@ -7,6 +7,7 @@ import NewEstimate from "./pages/NewEstimate";
 import MainLayout from "./components/MainLayout";
 import EstimatePage from "./pages/EstimatePage";
 import { LanguageProvider } from "./context/LanguageContext";
+import SettingsPage from "./pages/SettingsPage";
 
 const router = createBrowserRouter([
   {
@@ -17,6 +18,7 @@ const router = createBrowserRouter([
       { path: "", element: <MainPage /> },
       // { path: "create-new", element: <NewEstimate />, },
       { path: "estimate/:estimateId", element: <NewEstimate /> },
+      { path: "settings", element: <SettingsPage /> },
     ],
   },
 ]);
