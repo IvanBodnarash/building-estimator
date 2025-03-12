@@ -36,6 +36,8 @@ export default function Estimate() {
   const { estimateLanguage, setEstimateLanguage, t, estimateT } =
     useContext(LanguageContext);
 
+  const langTranslations = t("language");
+
   const loadWorks = async () => {
     const savedWorks = await db.works.toArray();
 
@@ -156,14 +158,14 @@ export default function Estimate() {
     );
   };
 
-  const categorizedWorks = works.reduce((acc, work) => {
-    const category = work.category || "Other Works";
-    if (!acc[category]) {
-      acc[category] = [];
-    }
-    acc[category].push(work);
-    return acc;
-  }, {});
+  // const categorizedWorks = works.reduce((acc, work) => {
+  //   const category = work.category || "Other Works";
+  //   if (!acc[category]) {
+  //     acc[category] = [];
+  //   }
+  //   acc[category].push(work);
+  //   return acc;
+  // }, {});
 
   const calculateFormula = (formula, variables) => {
     if (!formula) return 0;
@@ -179,7 +181,13 @@ export default function Estimate() {
   };
 
   const handleEdit = (row) => {
-    setEditingRow(row);
+    const selectedWork = works.find((w) => w.id === row.workId);
+
+    setEditingRow({
+      ...row,
+      translations: selectedWork?.translations || {},
+    });
+
     setIsEditModalOpen(true);
   };
 
@@ -196,8 +204,12 @@ export default function Estimate() {
       return;
     }
 
+    const updatedTranslations = editingRow.translations || {};
+
     await db.works.update(editingRow.workId, {
-      name: editingRow.workName,
+      name: updatedTranslations["en"] || editingRow.workName,
+      category: editingRow.category,
+      translations: updatedTranslations,
       formula: editingRow.formula,
       unit: editingRow.unit,
       priceForUnit: editingRow.priceForUnit,
@@ -210,7 +222,9 @@ export default function Estimate() {
         row.workId === editingRow.workId
           ? {
               ...row,
-              workName: editingRow.workName,
+              workName:
+                updatedTranslations[estimateLanguage] || editingRow.workName,
+              category: editingRow.category,
               formula: editingRow.formula,
               unit: editingRow.unit,
               priceForUnit: editingRow.priceForUnit,
@@ -269,12 +283,15 @@ export default function Estimate() {
   if (!estimate) return <p>{t("loading")}</p>;
 
   return (
-    <div className="lg:mx-38 md:mx-24 sm:mx-14 mx-6 border-x border-gray-700 px-4 py-8 overflow-hidden relative bg-gray-950/[2.5%] after:pointer-events-none after:absolute after:inset-0 after:rounded-lg after:inset-ring after:inset-ring-gray-950/5 bg-[radial-gradient(var(--pattern-fg)_1px,_transparent_0)] bg-[size:10px_10px] bg-fixed [--pattern-fg:var(--color-gray-300)]">
+    <div className="lg:mx-38 md:mx-24 sm:mx-14 mx-4 border-x border-gray-700 px-4 py-8 overflow-hidden relative bg-gray-950/[2.5%] after:pointer-events-none after:absolute after:inset-0 after:rounded-lg after:inset-ring after:inset-ring-gray-950/5 bg-[radial-gradient(var(--pattern-fg)_1px,_transparent_0)] bg-[size:10px_10px] bg-fixed [--pattern-fg:var(--color-gray-300)]">
       <div className="flex flex-col lg:gap-4 md:gap-3 sm:gap-2 gap-1">
-        <h1 className="lg:text-4xl md:text-3xl sm:text-2xl text-xl text-cyan-950/80 font-bold">{estimate.name}</h1>
+        <h1 className="lg:text-4xl md:text-3xl sm:text-2xl text-xl text-cyan-950/80 font-bold">
+          {estimate.name}
+        </h1>
         <p className="lg:text-xl md:text-lg sm:text-base text-sm font-bold text-cyan-800/60">
           {t("created")}: {formatDate(new Date(estimate.dateCreated))}
         </p>
+        {/* <button className="bg-cyan-900 lg:p-4 md:p-3 p-2 lg:text-[16px] md:text-sm text-xs opacity-80 text-white cursor-pointer lg:w-42 md:w-36 w-32 rounded-md"></button> */}
         <AddWorkForm
           onWorkAdded={loadWorks}
           editingWork={editingWork}
@@ -284,12 +301,16 @@ export default function Estimate() {
 
       <div className="p-4 border border-slate-500 bg-white mt-6 mb-8 overflow-x-auto">
         <div className="flex opacity-80 justify-between items-center mb-4">
-          <h2 className="text-xl font-bold">{t("estimateCalculator")}</h2>
+          <h2 className="lg:text-xl md:text-lg sm:text-base text-sm font-bold">
+            {t("estimateCalculator")}
+          </h2>
 
           <div className="">
-            <label className="mr-2">{t("estimateLanguage")}:</label>
+            <label className="mr-2 lg:text-lg md:text-md sm:text-sm text-xs">
+              {t("estimateLanguage")}:
+            </label>
             <select
-              className="p-2 outline-none"
+              className="sm:p-2 p-0 outline-none lg:text-lg md:text-md sm:text-sm text-xs"
               value={estimateLanguage}
               onChange={(e) => setEstimateLanguage(e.target.value)}
             >
@@ -303,7 +324,7 @@ export default function Estimate() {
 
         <table className="w-full min-w-max border-collapse">
           <thead>
-            <tr className="opacity-70">
+            <tr className="opacity-70 lg:text-lg md:text-md sm:text-sm text-xs">
               <th className="border p-2">ID</th>
               <th className="border p-2">{estimateT("workName")}</th>
               <th className="border p-2">{estimateT("formula")}</th>
@@ -314,44 +335,13 @@ export default function Estimate() {
               <th className="border p-2">{estimateT("actions")}</th>
             </tr>
           </thead>
-          <tbody className="sm:table-row-group">
+          <tbody className="sm:table-row-group lg:text-lg md:text-md sm:text-sm text-xs">
             {tableRows.map((row) => (
               <tr key={row.id} className="border">
                 <td className="border p-2 text-center">
                   {row.id === 0 ? "1" : row.id}
                 </td>
                 <td className="p-2 flex flex-row gap-2 justify-between items-center">
-                  {/* <select
-                    className="border rounded p-2 flex items-center justify-center"
-                    onChange={(e) => handleWorkSelect(row.id, e.target.value)}
-                    value={row.workId || ""}
-                  >
-                    <option value="">{t("selectWork")}</option>
-                    {Object.keys(categorizedWorks).map((categoryKey) => {
-                      const categoryTranslation =
-                        categories.find((cat) => cat.category === categoryKey)
-                          ?.translations?.[estimateLanguage] || categoryKey;
-
-                      return (
-                        <optgroup key={categoryKey} label={categoryTranslation}>
-                          {categorizedWorks[categoryKey].map((work) => (
-                            <option key={work.id} value={work.id}>
-                              {work.translations?.[estimateLanguage] ||
-                                work.name ||
-                                "Unnamed Work"}
-                            </option>
-                          ))}
-                        </optgroup>
-                      );
-                    })}
-                  </select> */}
-
-                  {/* <CustomWorkSelect
-                    works={works}
-                    selectedWorkId={row.workId}
-                    onSelect={(workId) => handleWorkSelect(row.id, workId)}
-                    className="z-20"
-                  /> */}
                   <WorkSelector
                     works={works}
                     categories={categories}
@@ -361,20 +351,20 @@ export default function Estimate() {
                   />
 
                   {row.workId && (
-                    <div className="flex space-x-4">
+                    <div className="flex md:space-x-4 space-x-2">
                       <button
                         className="cursor-pointer text-2xl"
                         onClick={() => handleEdit(row)}
                         title={t("edit")}
                       >
-                        <MdModeEdit />
+                        <MdModeEdit className="lg:text-xl md:text-lg sm:text-md text-sm" />
                       </button>
                       <button
                         className="cursor-pointer text-2xl"
                         onClick={() => handleDelete(row.workId)}
                         title={t("delete")}
                       >
-                        <RiDeleteBin2Fill />
+                        <RiDeleteBin2Fill className="lg:text-xl md:text-lg sm:text-md text-sm" />
                       </button>
                     </div>
                   )}
@@ -419,13 +409,13 @@ export default function Estimate() {
         <div className="flex items-center justify-center">
           <button
             onClick={addRow}
-            className="bg-cyan-800 hover:bg-cyan-700 text-white py-2 px-24 rounded-2xl m-2 cursor-pointer opacity-80"
+            className="bg-cyan-800 hover:bg-cyan-700 text-white md:py-2 p-1 lg:px-24 md:px-20 sm:px-16 px-12 rounded-2xl m-2 cursor-pointer opacity-80"
           >
-            <IoMdAdd size={18} className="" />
+            <IoMdAdd className="lg:text-xl md:text-lg sm:text-md text-sm" />
           </button>
         </div>
 
-        <div className="opacity-80">
+        <div className="opacity-80 lg:text-lg md:text-md sm:text-sm text-xs">
           <div className="flex justify-between items-center">
             <h3>Total:</h3>
             <h3>{total.toFixed(2)} €</h3>
@@ -451,13 +441,15 @@ export default function Estimate() {
           </div>
 
           <div className="flex justify-between items-center mt-4 p-2 bg-gray-100 rounded-lg">
-            <h3 className="text-xl font-bold">{t("totalWithTax")}:</h3>
-            <span className="text-xl text-green-600 font-bold">
+            <h3 className="lg:text-xl md:text-lg sm:text-md text-sm font-bold">
+              {t("totalWithTax")}:
+            </h3>
+            <span className="text-green-600 font-bold">
               {(total + taxAmount).toFixed(2)} €
             </span>
           </div>
 
-          <div className="flex flex-row gap-4">
+          <div className="flex flex-row md:gap-4 gap-2 lg:text-lg md:text-md sm:text-sm text-xs">
             <button
               className="bg-cyan-800 hover:bg-cyan-600 text-white py-2 px-4 rounded cursor-pointer mt-4"
               onClick={handleSaveEstimate}
@@ -484,7 +476,7 @@ export default function Estimate() {
 
         {isEditModalOpen && (
           <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center">
-            <div className="bg-white p-6 rounded-lg shadow-lg w-1/3">
+            <div className="bg-white p-6 rounded-lg shadow-lg w-2/3">
               <h2 className="text-xl">{t("editWork")}</h2>
               <label htmlFor="name">{t("workName")}</label>
               <input
@@ -499,6 +491,58 @@ export default function Estimate() {
                   }))
                 }
               />
+              <label htmlFor="category" className="block font-medium mb-2">
+                {t("category")}
+              </label>
+              <select
+                className="border p-2 w-full rounded mb-4"
+                name="category"
+                value={editingRow?.category || ""}
+                onChange={(e) =>
+                  setEditingRow((prev) => ({
+                    ...prev,
+                    category: e.target.value,
+                  }))
+                }
+              >
+                {categories.map((cat) => (
+                  <option key={cat.category} value={cat.category}>
+                    {cat.translations?.[estimateLanguage] || cat.category}
+                  </option>
+                ))}
+              </select>
+
+              <label className="block font-medium mb-2">
+                {t("translations")}
+              </label>
+              <div className="border p-3 rounded bg-gray-50 flex flex-row gap-2">
+                {["en", "es", "uk", "ru"].map((lang) => (
+                  <div key={lang} className="">
+                    <label htmlFor={`name-${lang}`}>
+                      {langTranslations[lang]}
+                    </label>
+                    <input
+                      type="text"
+                      className="border p-2 w-full mb-2"
+                      value={
+                        editingRow?.translations?.[lang] ??
+                        selectedWork?.translations?.[lang] ??
+                        ""
+                      }
+                      onChange={(e) =>
+                        setEditingRow((prev) => ({
+                          ...prev,
+                          translations: {
+                            ...prev.translations,
+                            [lang]: e.target.value,
+                          },
+                        }))
+                      }
+                    />
+                  </div>
+                ))}
+              </div>
+
               <label htmlFor="formula">{t("formula")}</label>
               <input
                 type="text"
@@ -544,13 +588,13 @@ export default function Estimate() {
               />
               <div className="flex justify-end">
                 <button
-                  className="px-4 py-2 rounded mr-2"
+                  className="px-4 py-2 rounded mr-2 bg-cyan-900 text-white hover:bg-cyan-700 transition-all cursor-pointer"
                   onClick={() => setIsEditModalOpen(false)}
                 >
                   {t("cancel")}
                 </button>
                 <button
-                  className="px-4 py-2 rounded mr-2"
+                  className="px-4 py-2 rounded mr-2 bg-cyan-900 text-white hover:bg-cyan-700 transition-all cursor-pointer"
                   onClick={handleSaveEdit}
                 >
                   {t("save")}

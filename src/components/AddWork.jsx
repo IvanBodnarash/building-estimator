@@ -147,7 +147,7 @@ export default function AddWorkForm({
         >
           <h2 className="text-xl font-bold mb-4 opacity-70">{t("addWork")}</h2>
           <form onSubmit={handleSubmit} className="space-y-4">
-            <div className="flex flex-row justify-between gap-4">
+            <div className="flex flex-row flex-wrap justify-between gap-4">
               <div className="flex flex-col gap-2 w-full">
                 <label className="opacity-70" htmlFor="workName">
                   {t("workName")}
@@ -238,7 +238,7 @@ export default function AddWorkForm({
             <div className="flex flex-col gap-4">
               <h3 className="font-bold opacity-80">{t("translations")}</h3>
 
-              <div className="flex flex-row gap-4 justify-between">
+              <div className="flex flex-row flex-wrap gap-4 justify-between">
                 {Object.keys(translations).map((lang) => (
                   <div key={lang} className="flex flex-col">
                     <label className="opacity-70 mb-2">

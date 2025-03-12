@@ -31,8 +31,8 @@ const generatePDF = (
 
   // Executor data
   doc.setFontSize(10);
-  doc.text(`${t.contractor}: [Company Name]`, 14, 25);
-  doc.text(`${t.address}: [Address]`, 14, 32);
+  doc.text(`${t.contractor}: Casian & Co.`, 14, 25);
+  doc.text(`${t.address}: c/Calle 12, Lloret de Mar`, 14, 32);
   doc.text(`${t.phone}: [+123445678]`, 14, 39);
   doc.text(`${t.date}: ${formatDate(new Date())}`, 14, 46);
 
