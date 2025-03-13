@@ -81,24 +81,24 @@ export default function MainPage() {
 
       {isModalOpen && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center">
-          <div className="bg-white p-6 rounded-lg shadow-lg w-1/3">
-            <h2 className="text-xl font-bold mb-4">{t("newEstimate")}</h2>
+          <div className="bg-white p-6 rounded-lg shadow-lg lg:w-1/3 md:w-1/2 sm:w-1/2 w-3/4">
+            <h2 className="lg:text-xl md:text-lg sm:text-md text-md font-bold mb-4">{t("newEstimate")}</h2>
             <input
               type="text"
-              className="border p-2 w-full mb-4"
+              className="border p-2 w-full mb-4 md:text-md sm:text-sm text-sm"
               placeholder={t("enterEstimateName")}
               value={estimateName}
               onChange={(e) => setEstimateName(e.target.value)}
             />
             <div className="flex justify-end">
               <button
-                className="bg-gray-500 text-white px-4 py-2 rounded mr-2 cursor-pointer"
+                className="bg-gray-500 text-white md:text-md sm:text-sm text-sm px-4 py-2 rounded mr-2 cursor-pointer"
                 onClick={() => setIsModalOpen(false)}
               >
                 {t("cancel")}
               </button>
               <button
-                className="bg-blue-500 text-white px-4 py-2 rounded cursor-pointer"
+                className="bg-blue-500 text-white md:text-md sm:text-sm text-sm px-4 py-2 rounded cursor-pointer"
                 onClick={handleSaveEstimate}
               >
                 {t("save")}

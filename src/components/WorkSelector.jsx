@@ -25,7 +25,7 @@ export default function WorkSelector({
           initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}
           exit={{ opacity: 0, scale: 0.95 }}
-          className="absolute mt-1 bg-white shadow-lg border max-w-96 max-h-60 overflow-auto z-50"
+          className="absolute mt-1 bg-white shadow-lg border max-w-96 max-h-120 overflow-auto z-50"
         >
           <div className="flex">
             <div className="w-68 border-r">
