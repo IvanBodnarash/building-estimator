@@ -1,5 +1,6 @@
 import React from "react";
 import { Outlet } from "react-router-dom";
+
 import Header from "./Header";
 import Footer from "./Footer";
 
@@ -21,9 +22,9 @@ export default function MainLayout() {
 
       <Outlet />
 
-      {/* <div className="border-1 border-gray-600 w-full absolute"></div>
+      <div className="border-1 border-gray-600 w-full absolute"></div>
 
-      <Footer /> */}
+      <Footer />
     </div>
   );
 }

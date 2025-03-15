@@ -17,11 +17,11 @@ export default function EstimateCard({ estimate, handleDeleteEstimate }) {
         >
           {t("delete")}
         </button>
-        <div onClick={() => navigate(`/estimate/${estimate.id}`)}>
+        <div className="flex flex-col justify-center items-center w-full" onClick={() => navigate(`/estimate/${estimate.id}`)}>
           <div className="lg:h-50 md:h-44 sm:h-36 h-44 flex justify-center items-center">
             <IoDocumentTextSharp className="text-white md:text-5xl sm:text-4xl text-5xl" />
           </div>
-          <h1 className="text-slate-200 lg:text-2xl md:text-xl sm:text-lg text-md text-center font-medium">
+          <h1 className="text-slate-200 lg:text-2xl md:text-xl sm:text-lg text-md text-center font-medium w-full px-2 overflow-hidden text-ellipsis">
             {estimate.name}
           </h1>
           <h2 className="text-slate-200 text-md font-medium">

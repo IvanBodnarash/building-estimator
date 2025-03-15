@@ -165,7 +165,7 @@ export default function AddWorkForm({
               onSubmit={handleSubmit}
               className="space-y-4 lg:text-lg md:text-md sm:text-sm text-xs"
             >
-              <div className="flex flex-row lg:flex-nowrap flex-wrap justify-between gap-4">
+              <div className="flex flex-row items-end lg:flex-nowrap flex-wrap gap-4">
                 <div className="flex flex-col gap-2 w-full">
                   <label className="opacity-70" htmlFor="workName">
                     {t("workName")}
@@ -182,12 +182,12 @@ export default function AddWorkForm({
                   />
                 </div>
 
-                <div className="flex flex-col gap-2">
+                <div className="flex flex-col gap-2 w-full">
                   <label className="opacity-70" htmlFor="category">
                     {t("category")}
                   </label>
                   <select
-                    className="border h-10 cursor-pointer opacity-80"
+                    className="border lg:p-3 p-2 w-full cursor-pointer opacity-80"
                     name="category"
                     id=""
                     onChange={(e) => setCategory(e.target.value)}
@@ -216,7 +216,7 @@ export default function AddWorkForm({
                     {t("unit")}
                   </label>
                   <select
-                    className="border h-10 lg:w-32 w-12 cursor-pointer opacity-80"
+                    className="border lg:p-3 p-2 xl:w-32 w-22 cursor-pointer opacity-80"
                     name="unit"
                     id=""
                     onChange={(e) => setUnit(e.target.value)}
@@ -237,7 +237,7 @@ export default function AddWorkForm({
                     type="text"
                     id="formula"
                     placeholder="Formula (e.g: a * U)"
-                    className="border p-2 opacity-80"
+                    className="border p-2 xl:w-full w-22 opacity-80"
                     value={formula}
                     onChange={handleFormulaChange}
                     autoComplete="off"
@@ -250,7 +250,7 @@ export default function AddWorkForm({
                     {t("priceForUnit")} (U)
                   </label>
                   <input
-                    type="text"
+                    type="number"
                     id="priceForUnit"
                     placeholder="Price For Unit"
                     className="border p-2 w-full opacity-80"

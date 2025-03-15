@@ -51,7 +51,7 @@ export default function MainPage() {
   }
 
   return (
-    <div className="h-screen border-x flex lg:mx-38 md:mx-24 sm:mx-14 mx-4 border-gray-700 p-10 overflow-hidden relative bg-gray-950/[2.5%] after:pointer-events-none after:absolute after:inset-0 after:rounded-lg after:inset-ring after:inset-ring-gray-950/5 bg-[radial-gradient(var(--pattern-fg)_1px,_transparent_0)] bg-[size:10px_10px] bg-fixed [--pattern-fg:var(--color-gray-300)]">
+    <div className="h-screen border-x flex items-start lg:mx-38 md:mx-24 sm:mx-14 mx-4 border-gray-700 p-10 md:overflow-hidden overflow-scroll relative bg-gray-950/[2.5%] after:pointer-events-none after:absolute after:inset-0 after:rounded-lg after:inset-ring after:inset-ring-gray-950/5 bg-[radial-gradient(var(--pattern-fg)_1px,_transparent_0)] bg-[size:10px_10px] bg-fixed [--pattern-fg:var(--color-gray-300)]">
       <ul className="flex flex-row flex-wrap lg:gap-12 md:gap-8 sm:gap-6 gap-4 justify-center">
         <div
           className="lg:w-50 lg:h-70 md:w-44 md:h-64 sm:w-36 sm:h-60 w-44 h-64 bg-cyan-800 flex flex-col justify-center items-center cursor-pointer hover:bg-cyan-700 hover:scale-103 hover:shadow-2xl transition-all rounded-xl"
@@ -80,7 +80,7 @@ export default function MainPage() {
       </ul>
 
       {isModalOpen && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center">
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
           <div className="bg-white p-6 rounded-lg shadow-lg lg:w-1/3 md:w-1/2 sm:w-1/2 w-3/4">
             <h2 className="lg:text-xl md:text-lg sm:text-md text-md font-bold mb-4">{t("newEstimate")}</h2>
             <input

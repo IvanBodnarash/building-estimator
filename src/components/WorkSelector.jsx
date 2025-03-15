@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Menu, MenuButton, Transition } from "@headlessui/react";
 import { motion } from "framer-motion";
 import { ChevronRightIcon } from "@heroicons/react/24/solid";
@@ -10,7 +10,22 @@ export default function WorkSelector({
   handleWorkSelect,
   row,
 }) {
-  const [hoveredCategory, setHoveredCategory] = useState(null);
+  // const [hoveredCategory, setHoveredCategory] = useState(null);
+  const [activeCategory, setActiveCategory] = useState(null);
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const checkIfMobile = () => setIsMobile(window.innerWidth < 768);
+    checkIfMobile();
+    window.addEventListener("resize", checkIfMobile);
+    return () => window.removeEventListener("resize", checkIfMobile);
+  }, []);
+
+  const handleCategoryClick = (category) => {
+    setActiveCategory((prevCategory) =>
+      prevCategory === category ? null : category
+    );
+  };
 
   return (
     <div className="relative w-full">
@@ -32,7 +47,13 @@ export default function WorkSelector({
               {categories.map((category) => (
                 <div
                   key={category.category}
-                  onMouseEnter={() => setHoveredCategory(category.category)}
+                  onClick={() =>
+                    isMobile ? handleCategoryClick(category.category) : null
+                  }
+                  onMouseEnter={() =>
+                    !isMobile && setActiveCategory(category.category)
+                  }
+                  // onMouseEnter={() => setHoveredCategory(category.category)}
                   className="px-3 py-2 flex font-bold justify-between items-center cursor-pointer hover:bg-blue-100 text-gray-900"
                 >
                   {category.translations?.[estimateLanguage] ||
@@ -42,19 +63,26 @@ export default function WorkSelector({
               ))}
             </div>
 
-            {hoveredCategory && (
+            {activeCategory && (
               <motion.div
                 initial={{ opacity: 0, x: 10 }}
                 animate={{ opacity: 1, x: 0 }}
                 exit={{ opacity: 0, x: 10 }}
-                className="w-68 bg-white shadow-lg"
+                className="md:w-68 w-full bg-white shadow-lg"
               >
                 {works
-                  .filter((work) => work.category === hoveredCategory)
+                  .filter((work) => work.category === activeCategory)
                   .map((work) => (
                     <div
                       key={work.id}
-                      onClick={() => handleWorkSelect(row.id, work.id)}
+                      onClick={(e) => {
+                        e.preventDefault();
+                        handleWorkSelect(row.id, work.id);
+                      }}
+                      onTouchStart={(e) => {
+                        e.preventDefault();
+                        handleWorkSelect(row.id, work.id);
+                      }}
                       className="px-3 py-2 cursor-pointer hover:bg-blue-200 text-gray-900"
                     >
                       {work.translations?.[estimateLanguage] || work.name}
