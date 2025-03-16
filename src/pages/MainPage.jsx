@@ -2,7 +2,6 @@ import { useContext, useEffect, useState } from "react";
 import { FaPlus } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
 import { db } from "../db/db";
-import formatDate from "../utils/formatDate";
 import EstimateCard from "../components/EstimateCard";
 import { LanguageContext } from "../context/LanguageContext";
 
@@ -80,7 +79,7 @@ export default function MainPage() {
       </ul>
 
       {isModalOpen && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center md:items-center items-start md:pt-0 pt-24 z-50">
           <div className="bg-white p-6 rounded-lg shadow-lg lg:w-1/3 md:w-1/2 sm:w-1/2 w-3/4">
             <h2 className="lg:text-xl md:text-lg sm:text-md text-md font-bold mb-4">{t("newEstimate")}</h2>
             <input

@@ -10,7 +10,6 @@ export default function WorkSelector({
   handleWorkSelect,
   row,
 }) {
-  // const [hoveredCategory, setHoveredCategory] = useState(null);
   const [activeCategory, setActiveCategory] = useState(null);
   const [isMobile, setIsMobile] = useState(false);
 
@@ -21,7 +20,8 @@ export default function WorkSelector({
     return () => window.removeEventListener("resize", checkIfMobile);
   }, []);
 
-  const handleCategoryClick = (category) => {
+  const handleCategoryClick = (category, event) => {
+    event.stopPropagation();
     setActiveCategory((prevCategory) =>
       prevCategory === category ? null : category
     );
@@ -43,18 +43,17 @@ export default function WorkSelector({
           className="absolute mt-1 bg-white shadow-lg border max-w-96 max-h-120 overflow-auto z-50"
         >
           <div className="flex">
-            <div className="w-68 border-r">
+            <div className="md:w-68 w-full border-r">
               {categories.map((category) => (
                 <div
                   key={category.category}
-                  onClick={() =>
-                    isMobile ? handleCategoryClick(category.category) : null
+                  onClick={(event) =>
+                    handleCategoryClick(category.category, event)
                   }
                   onMouseEnter={() =>
                     !isMobile && setActiveCategory(category.category)
                   }
-                  // onMouseEnter={() => setHoveredCategory(category.category)}
-                  className="px-3 py-2 flex font-bold justify-between items-center cursor-pointer hover:bg-blue-100 text-gray-900"
+                  className="px-3 py-2 w-full flex font-bold justify-between items-center cursor-pointer hover:bg-blue-100 text-gray-900"
                 >
                   {category.translations?.[estimateLanguage] ||
                     category.category}
@@ -68,7 +67,7 @@ export default function WorkSelector({
                 initial={{ opacity: 0, x: 10 }}
                 animate={{ opacity: 1, x: 0 }}
                 exit={{ opacity: 0, x: 10 }}
-                className="md:w-68 w-full bg-white shadow-lg"
+                className="w-full bg-white shadow-lg"
               >
                 {works
                   .filter((work) => work.category === activeCategory)
@@ -77,13 +76,14 @@ export default function WorkSelector({
                       key={work.id}
                       onClick={(e) => {
                         e.preventDefault();
+                        e.stopPropagation();
                         handleWorkSelect(row.id, work.id);
                       }}
                       onTouchStart={(e) => {
                         e.preventDefault();
                         handleWorkSelect(row.id, work.id);
                       }}
-                      className="px-3 py-2 cursor-pointer hover:bg-blue-200 text-gray-900"
+                      className="w-68 px-3 py-2 cursor-pointer hover:bg-blue-200 text-gray-900"
                     >
                       {work.translations?.[estimateLanguage] || work.name}
                     </div>

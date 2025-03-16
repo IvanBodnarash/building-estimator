@@ -607,3 +607,205 @@ export default function Estimate() {
     </div>
   );
 }
+
+// import React, { useContext, useEffect, useState } from "react";
+// import { useParams } from "react-router-dom";
+// import { evaluate } from "mathjs";
+// import { motion } from "framer-motion";
+
+// import standardWorksDB from "../db/standardWorksDB";
+// import { categories } from "../db/categoriesDB";
+// import { db } from "../db/db";
+
+// import formatDate from "../utils/formatDate";
+// import generatePDF from "../utils/generatePDF";
+
+// import { LanguageContext } from "../context/LanguageContext";
+
+// import { IoMdAdd } from "react-icons/io";
+// import { MdModeEdit } from "react-icons/md";
+// import { RiDeleteBin2Fill } from "react-icons/ri";
+
+// import AddWorkForm from "../components/AddWork";
+// import WorkSelector from "../components/WorkSelector";
+
+// export default function Estimate() {
+//   const [works, setWorks] = useState([]);
+//   const [tableRows, setTableRows] = useState([]);
+//   const [selectedCategories, setSelectedCategories] = useState([]);
+//   const [editingRow, setEditingRow] = useState(null);
+//   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+//   const [selectedCategory, setSelectedCategory] = useState("");
+
+//   const { estimateId } = useParams();
+//   const [estimate, setEstimate] = useState(null);
+//   const { estimateLanguage, setEstimateLanguage, t, estimateT } =
+//     useContext(LanguageContext);
+
+//   useEffect(() => {
+//     const loadWorks = async () => {
+//       const savedWorks = await db.works.toArray();
+//       if (savedWorks.length === 0) {
+//         await db.works.bulkAdd(standardWorksDB);
+//       }
+//       setWorks(await db.works.toArray());
+//     };
+//     loadWorks();
+//   }, []);
+
+//   useEffect(() => {
+//     async function loadEstimate() {
+//       const storedEstimate = await db.estimates.get(Number(estimateId));
+//       if (!storedEstimate) {
+//         alert(t("estimateNotFound"));
+//         return;
+//       }
+//       setEstimate(storedEstimate);
+//       setTableRows(storedEstimate.works || []);
+//     }
+//     loadEstimate();
+//   }, [estimateId]);
+
+//   const addCategory = () => {
+//     if (!selectedCategory) return;
+
+//     const categoryExists = selectedCategories.some(
+//       (cat) => cat.category === selectedCategory
+//     );
+//     if (categoryExists) return;
+
+//     setSelectedCategories((prev) => [
+//       ...prev,
+//       { category: selectedCategory, id: prev.length + 1 },
+//     ]);
+//   };
+
+//   const addRow = () => {
+//     if (selectedCategories.length === 0) {
+//       alert("Спочатку додайте категорію!");
+//       return;
+//     }
+
+//     const lastCategory = selectedCategories[selectedCategories.length - 1];
+//     const categoryId = lastCategory.id;
+//     const worksInCategory = tableRows.filter(
+//       (row) => row.categoryId === categoryId
+//     );
+
+//     setTableRows((prevRows) => [
+//       ...prevRows,
+//       {
+//         id: prevRows.length + 1,
+//         categoryId,
+//         work: null,
+//         formula: "",
+//         unit: "",
+//         quantity: "",
+//         priceForUnit: 0,
+//         result: 0,
+//         workNumber: `${categoryId}.${worksInCategory.length + 1}`,
+//       },
+//     ]);
+//   };
+
+//   const removeCategory = (categoryId) => {
+//     setSelectedCategories((prev) =>
+//       prev.filter((cat) => cat.id !== categoryId)
+//     );
+//     setTableRows((prev) => prev.filter((row) => row.categoryId !== categoryId));
+//   };
+
+//   const removeRow = (rowId) => {
+//     setTableRows((prevRows) => prevRows.filter((row) => row.id !== rowId));
+//   };
+
+//   return (
+//     <div className="lg:mx-38 md:mx-24 sm:mx-14 mx-4 border-x border-gray-700 px-4 py-8 bg-gray-950/[2.5%]">
+//       <h1 className="text-2xl font-bold text-cyan-950">{estimate?.name}</h1>
+
+//       {/* Таблиця */}
+//       <table className="w-full min-w-max border-collapse mt-6">
+//         <tbody>
+//           {selectedCategories.map((category) => (
+//             <React.Fragment key={category.id}>
+//               <tr className="bg-gray-200 font-bold">
+//                 <td colSpan="8" className="p-2 flex justify-between">
+//                   <span>
+//                     {category.id}.{" "}
+//                     {categories.find((c) => c.category === category.category)
+//                       ?.translations?.[estimateLanguage] || category.category}
+//                   </span>
+//                   <button
+//                     className="text-red-500"
+//                     onClick={() => removeCategory(category.id)}
+//                   >
+//                     ✖
+//                   </button>
+//                 </td>
+//               </tr>
+//               {tableRows
+//                 .filter((row) => row.categoryId === category.id)
+//                 .map((row) => (
+//                   <tr key={row.id} className="border">
+//                     <td className="border p-2 text-center">{row.workNumber}</td>
+//                     <td className="p-2">
+//                       <WorkSelector
+//                         works={works}
+//                         categories={categories}
+//                         estimateLanguage={estimateLanguage}
+//                         handleWorkSelect={(id, workId) =>
+//                           console.log("Selected", id, workId)
+//                         }
+//                         row={row}
+//                       />
+//                     </td>
+//                     <td className="border p-2 text-center">
+//                       <button
+//                         className="text-red-500"
+//                         onClick={() => removeRow(row.id)}
+//                       >
+//                         ✖
+//                       </button>
+//                     </td>
+//                   </tr>
+//                 ))}
+//             </React.Fragment>
+//           ))}
+//         </tbody>
+//       </table>
+
+//       {/* Кнопки */}
+//       <div className="flex flex-col md:flex-row gap-4 mt-6">
+//         {/* Вибір категорії */}
+//         <div className="flex items-center gap-2">
+//           <select
+//             className="border p-2 rounded"
+//             value={selectedCategory}
+//             onChange={(e) => setSelectedCategory(e.target.value)}
+//           >
+//             <option value="">{t("selectCategory")}</option>
+//             {categories.map((cat) => (
+//               <option key={cat.category} value={cat.category}>
+//                 {cat.translations[estimateLanguage] || cat.category}
+//               </option>
+//             ))}
+//           </select>
+//           <button
+//             onClick={addCategory}
+//             className="bg-green-500 text-white px-4 py-2 rounded"
+//           >
+//             <IoMdAdd /> {t("addCategory")}
+//           </button>
+//         </div>
+
+//         {/* Додати роботу */}
+//         <button
+//           onClick={addRow}
+//           className="bg-blue-500 text-white px-4 py-2 rounded"
+//         >
+//           <IoMdAdd /> {t("addWork")}
+//         </button>
+//       </div>
+//     </div>
+//   );
+// }

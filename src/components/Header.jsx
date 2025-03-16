@@ -29,7 +29,7 @@ export default function Header() {
             isActive,
           }) => (isActive ? "active" : "")}`}
         >
-          <IoSettingsSharp size={20} />
+          <IoSettingsSharp size={20} className="hover:text-slate-600 hover:scale-110 hover:rotate-90 transition-all ease-in-out" />
           {/* {t("settings")} */}
         </NavLink>
         <select
