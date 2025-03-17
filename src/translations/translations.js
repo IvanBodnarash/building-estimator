@@ -57,6 +57,7 @@ const translations = {
     date: "Date",
     subtotal: "Subtotal",
     settings: "Settings",
+    addCategory: "Add Category",
   },
   es: {
     home: "Inicio",
@@ -117,6 +118,7 @@ const translations = {
     date: "Fecha",
     subtotal: "Subtotal",
     settings: "Ajustes",
+    addCategory: "Agregar Categoria",
   },
   uk: {
     home: "Головна",
@@ -175,6 +177,7 @@ const translations = {
     date: "Дата",
     subtotal: "Підсумок",
     settings: "Налаштування",
+    addCategory: "Додати Категорію",
   },
   ru: {
     home: "Главная",
@@ -233,6 +236,7 @@ const translations = {
     date: "Дата",
     subtotal: "Итого",
     settings: "Настройки",
+    addCategory: "Добавить Категорию",
   },
 };
 
