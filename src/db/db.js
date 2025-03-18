@@ -8,6 +8,7 @@ db.version(2).stores({
   units: "++id, name",
   estimates: "++id, dateCreated, name",
   estimateWorks: "++id, estimateId, workId, quantity, priceForUnit, result",
+  categories: "++id, estimateId, categoryName, translations",
 });
 
 async function initializeDB() {

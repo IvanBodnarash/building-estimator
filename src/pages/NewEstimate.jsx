@@ -57,23 +57,45 @@ export default function Estimate() {
     setWorks(updatedWorks);
   };
 
+  const loadEstimate = async () => {
+    const storedEstimate = await db.estimates.get(Number(estimateId));
+    if (!storedEstimate) {
+      alert(t("estimateNotFound"));
+      return;
+    }
+    setEstimate(storedEstimate);
+
+    console.log("🔹 Завантажений кошторис:", storedEstimate);
+
+    const storedWorks = storedEstimate.works || [];
+    setTableRows(storedWorks);
+
+    console.log("🔹 Завантажені роботи:", storedWorks);
+
+    const storedCategories = await db.categories
+      .where("estimateId")
+      .equals(Number(estimateId))
+      .toArray();
+
+    setSelectedCategories(
+      storedCategories.map((cat, index) => ({
+        id: cat.id,
+        category: cat.categoryName,
+      }))
+    );
+
+    console.log("🔹 Завантажені категорії:", storedCategories);
+  };
+
   useEffect(() => {
     loadWorks();
   }, []);
 
   useEffect(() => {
-    async function loadEstimate() {
-      const storedEstimate = await db.estimates.get(Number(estimateId));
-      if (!storedEstimate) {
-        alert(t("estimateNotFound"));
-        return;
-      }
-      setEstimate(storedEstimate);
-      setTableRows(storedEstimate.works || []);
-    }
-
     loadEstimate();
   }, [estimateId]);
+
+  console.log(selectedCategories);
 
   useEffect(() => {
     const newTotal = tableRows.reduce((sum, row) => sum + (row.result || 0), 0);
@@ -92,7 +114,8 @@ export default function Estimate() {
               ...row,
               workName:
                 selectedWork.translations[estimateLanguage] ||
-                selectedWork.name,
+                selectedWork.name ||
+                "Unnamed Work",
             }
           : row;
       })
@@ -107,8 +130,13 @@ export default function Estimate() {
     );
     if (categoryExists) return;
 
+    const maxId =
+      selectedCategories.length > 0
+        ? Math.max(...selectedCategories.map((cat) => cat.id))
+        : 0;
+
     const newCategory = {
-      id: selectedCategories.length + 1,
+      id: maxId + 1,
       category: selectedCategory,
     };
 
@@ -281,6 +309,9 @@ export default function Estimate() {
     setIsEditModalOpen(false);
   };
 
+  console.log("TableRows:", tableRows);
+  console.log("Selected Categories:", selectedCategories);
+
   const handleDelete = async (workId) => {
     if (confirm(t("deleteWorkConfirmation"))) {
       setWorks((prevWorks) => prevWorks.filter((w) => w.id !== workId));
@@ -312,14 +343,42 @@ export default function Estimate() {
       return;
     }
 
+    // const updatedEstimate = {
+    //   ...estimate,
+    //   works: tableRows.map((row) => ({
+    //     id: row.id,
+    //     categoryId: row.categoryId,
+    //     workId: row.workId || null,
+    //     workName: row.workName || "",
+    //     formula: row.formula || "",
+    //     unit: row.unit || "",
+    //     quantity: row.quantity || 0,
+    //     priceForUnit: row.priceForUnit || 0,
+    //     result: row.result || 0,
+    //   })),
+    // };
+
     const updatedEstimate = {
       ...estimate,
       works: tableRows,
     };
 
     await db.estimates.update(Number(estimateId), updatedEstimate);
+
+    await db.categories.where("estimateId").equals(Number(estimateId)).delete();
+
+    await db.categories.bulkAdd(
+      selectedCategories.map((cat) => ({
+        estimateId: Number(estimateId),
+        categoryName: cat.category,
+      }))
+    );
+
+    loadEstimate();
     alert(t("savingEstimateSuccess"));
   };
+
+  console.log(db.categories.toArray());
 
   if (!estimate)
     return (
@@ -401,7 +460,9 @@ export default function Estimate() {
                 </tr>
 
                 {tableRows
-                  .filter((row) => row.categoryId === category.id)
+                  .filter(
+                    (row) => Number(row.categoryId) === Number(category.id)
+                  )
                   .map((row) => (
                     <tr key={row.id} className="border">
                       <td className="border p-2 text-center">
