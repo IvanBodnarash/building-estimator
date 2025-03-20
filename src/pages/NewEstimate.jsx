@@ -5,7 +5,7 @@ import { evaluate } from "mathjs";
 import { motion } from "framer-motion";
 
 import standardWorksDB from "../db/standardWorksDB";
-import { categories } from "../db/categoriesDB";
+import { categories as allCategories } from "../db/categoriesDB";
 import { db } from "../db/db";
 
 import formatDate from "../utils/formatDate";
@@ -26,11 +26,10 @@ export default function Estimate() {
   const [selectedCategories, setSelectedCategories] = useState([]);
   const [tableRows, setTableRows] = useState([]);
   const [selectedCategory, setSelectedCategory] = useState("");
+  // const [categories, setCategories] = useState([]);
 
   const [editingWork, setEditingWork] = useState(null);
-
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
-
   const [editingRow, setEditingRow] = useState(null);
 
   const [total, setTotal] = useState(0);
@@ -45,16 +44,26 @@ export default function Estimate() {
 
   const langTranslations = t("language");
 
-  const loadWorks = async () => {
-    const savedWorks = await db.works.toArray();
+  // const loadWorks = async () => {
+  //   const savedWorks = await db.works.toArray();
 
+  //   if (savedWorks.length === 0) {
+  //     await db.works.bulkAdd(standardWorksDB);
+  //     console.log("✅ Standard works added!");
+  //   }
+
+  //   const updatedWorks = await db.works.toArray();
+  //   setWorks(updatedWorks);
+  // };
+
+  const loadWorks = async () => {
+    let savedWorks = await db.works.toArray();
     if (savedWorks.length === 0) {
       await db.works.bulkAdd(standardWorksDB);
+      savedWorks = await db.works.toArray();
       console.log("✅ Standard works added!");
     }
-
-    const updatedWorks = await db.works.toArray();
-    setWorks(updatedWorks);
+    setWorks(savedWorks);
   };
 
   const loadEstimate = async () => {
@@ -64,27 +73,28 @@ export default function Estimate() {
       return;
     }
     setEstimate(storedEstimate);
+    setTableRows(storedEstimate.works || []);
+    setSelectedCategories(storedEstimate.categories || []);
 
-    console.log("🔹 Завантажений кошторис:", storedEstimate);
+    // console.log("🔹 Завантажений кошторис:", storedEstimate);
 
-    const storedWorks = storedEstimate.works || [];
-    setTableRows(storedWorks);
+    // const storedWorks = storedEstimate.works || [];
+    // setTableRows(storedWorks);
 
-    console.log("🔹 Завантажені роботи:", storedWorks);
+    // console.log("🔹 Завантажені роботи:", storedWorks);
 
-    const storedCategories = await db.categories
-      .where("estimateId")
-      .equals(Number(estimateId))
-      .toArray();
+    // const storedCategories = await db.categories
+    //   .where("estimateId")
+    //   .equals(Number(estimateId))
+    //   .toArray();
+    // setSelectedCategories(
+    //   storedCategories.map((cat) => ({
+    //     id: cat.id,
+    //     category: cat.categoryName,
+    //   }))
+    // );
 
-    setSelectedCategories(
-      storedCategories.map((cat, index) => ({
-        id: cat.id,
-        category: cat.categoryName,
-      }))
-    );
-
-    console.log("🔹 Завантажені категорії:", storedCategories);
+    // console.log("🔹 Завантажені категорії:", storedCategories);
   };
 
   useEffect(() => {
@@ -114,8 +124,7 @@ export default function Estimate() {
               ...row,
               workName:
                 selectedWork.translations[estimateLanguage] ||
-                selectedWork.name ||
-                "Unnamed Work",
+                selectedWork.name,
             }
           : row;
       })
@@ -125,10 +134,13 @@ export default function Estimate() {
   const addCategory = () => {
     if (!selectedCategory) return;
 
-    const categoryExists = selectedCategories.some(
-      (cat) => cat.category === selectedCategory
-    );
-    if (categoryExists) return;
+    if (selectedCategories.some((cat) => cat.category === selectedCategory))
+      return;
+
+    // const categoryExists = selectedCategories.some(
+    //   (cat) => cat.category === selectedCategory
+    // );
+    // if (categoryExists) return;
 
     const maxId =
       selectedCategories.length > 0
@@ -140,22 +152,22 @@ export default function Estimate() {
       category: selectedCategory,
     };
 
-    setSelectedCategories([...selectedCategories, newCategory]);
+    setSelectedCategories((prev) => [...prev, newCategory]);
+    setSelectedCategory("");
   };
 
   const removeCategory = (categoryId) => {
     setSelectedCategories((prevCategories) =>
       prevCategories.filter((cat) => cat.id !== categoryId)
     );
-
     setTableRows((prevRows) =>
-      prevRows.filter((row) => row.categoryId !== categoryId)
+      prevRows.filter((row) => Number(row.categoryId) !== Number(categoryId))
     );
   };
 
   const addRow = (categoryId) => {
     const worksInCategory = tableRows.filter(
-      (row) => row.categoryId === categoryId
+      (row) => Number(row.categoryId) !== Number(categoryId)
     );
 
     const newRow = {
@@ -171,36 +183,72 @@ export default function Estimate() {
       workNumber: `${categoryId}.${worksInCategory.length + 1}`,
     };
 
-    setTableRows([
-      ...tableRows,
-      newRow,
-      // {
-      //   id: tableRows.length + 1,
-      //   work: null,
-      //   formula: "",
-      //   unit: "",
-      //   quantity: "",
-      //   priceForUnit: 0,
-      //   result: 0,
-      // },
-    ]);
+    setTableRows((prev) => [...prev, newRow]);
   };
 
+  // const handleWorkSelect = (rowId, workId) => {
+  //   const selectedWork = works.find((w) => w.id === workId);
+
+  //   setTimeout(() => {
+  //     setTableRows((prev) =>
+  //       prev.map((row) =>
+  //         row.id === rowId
+  //           ? {
+  //               ...row,
+  //               workId: selectedWork.id,
+  //               workName:
+  //                 selectedWork.translations[estimateLanguage] ||
+  //                 selectedWork.name ||
+  //                 "Unnamed Work",
+  //               categoryId:
+  //                 selectedCategories.find(
+  //                   (cat) => cat.category === selectedWork.category
+  //                 )?.id || row.categoryId,
+  //               formula: selectedWork.formula,
+  //               unit: selectedWork.unit,
+  //               priceForUnit: selectedWork.priceForUnit || 0,
+  //               result: calculateFormula(selectedWork.formula, {
+  //                 a: 1,
+  //                 U: selectedWork.priceForUnit,
+  //               }),
+  //             }
+  //           : row
+  //       )
+  //     );
+  //   }, 100);
+  // };
+
   const handleWorkSelect = (rowId, workId) => {
-    const selectedWork = works.find((w) => w.id === Number(workId));
+    let selectedWork;
+    let parentCategory;
+    for (const cat of works) {
+      const found = cat.works.find((work) => work.id === workId);
+      if (found) {
+        selectedWork = found;
+        parentCategory = cat;
+        break;
+      }
+    }
+    if (!selectedWork) {
+      console.error("Work not found for id:", workId);
+      return;
+    }
 
     setTimeout(() => {
-      setTableRows(
-        tableRows.map((row) =>
+      setTableRows((prevRows) =>
+        prevRows.map((row) =>
           row.id === rowId
             ? {
                 ...row,
                 workId: selectedWork.id,
                 workName:
                   selectedWork.translations[estimateLanguage] ||
-                  selectedWork.name ||
+                  selectedWork.workName ||
                   "Unnamed Work",
-                category: selectedWork.category,
+                categoryId:
+                  selectedCategories.find(
+                    (cat) => cat.category === parentCategory.category
+                  )?.id || row.categoryId,
                 formula: selectedWork.formula,
                 unit: selectedWork.unit,
                 priceForUnit: selectedWork.priceForUnit || 0,
@@ -254,7 +302,7 @@ export default function Estimate() {
 
     setEditingRow({
       ...row,
-      translations: selectedWork?.translations || {},
+      translations: selectedWork ? selectedWork.translations : {},
     });
 
     setIsEditModalOpen(true);
@@ -332,8 +380,6 @@ export default function Estimate() {
         )
       );
       await db.works.delete(workId);
-    } else {
-      return;
     }
   };
 
@@ -361,6 +407,7 @@ export default function Estimate() {
     const updatedEstimate = {
       ...estimate,
       works: tableRows,
+      categories: selectedCategories,
     };
 
     await db.estimates.update(Number(estimateId), updatedEstimate);
@@ -378,7 +425,8 @@ export default function Estimate() {
     alert(t("savingEstimateSuccess"));
   };
 
-  console.log(db.categories.toArray());
+  console.log("TableRows:", tableRows);
+  console.log("Selected Categories:", selectedCategories);
 
   if (!estimate)
     return (
@@ -463,7 +511,7 @@ export default function Estimate() {
                   .filter(
                     (row) => Number(row.categoryId) === Number(category.id)
                   )
-                  .map((row) => (
+                  .map((row, workIndex) => (
                     <tr key={row.id} className="border">
                       <td className="border p-2 text-center">
                         {row.workNumber}
@@ -471,7 +519,7 @@ export default function Estimate() {
                       <td className="p-2 flex flex-row gap-2 justify-between items-center">
                         <WorkSelector
                           works={works}
-                          categories={categories}
+                          categories={allCategories}
                           estimateLanguage={estimateLanguage}
                           handleWorkSelect={handleWorkSelect}
                           row={row}
@@ -561,7 +609,7 @@ export default function Estimate() {
                   className="border p-2 rounded"
                 >
                   <option value="">{t("selectCategory")}</option>
-                  {categories.map((cat) => (
+                  {allCategories.map((cat) => (
                     <option key={cat.category} value={cat.category}>
                       {cat.translations[estimateLanguage] || cat.category}
                     </option>
@@ -687,7 +735,7 @@ export default function Estimate() {
                   }))
                 }
               >
-                {categories.map((cat) => (
+                {allCategories.map((cat) => (
                   <option key={cat.category} value={cat.category}>
                     {cat.translations?.[estimateLanguage] || cat.category}
                   </option>

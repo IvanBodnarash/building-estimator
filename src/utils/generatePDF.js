@@ -40,7 +40,7 @@ const generatePDF = (
 
   // Group works by category
   const categorizedRows = tableRows.reduce((acc, row) => {
-    const category = row.category;
+    const category = row.category || "Uncategorized";
     if (!acc[category]) {
       acc[category] = [];
     }
@@ -48,50 +48,52 @@ const generatePDF = (
     return acc;
   }, {});
 
-  Object.entries(categorizedRows).forEach(([category, rows], categoryIndex) => {
-    doc.setFontSize(12);
-    doc.setFont("Roboto");
-    doc.text(`${t.category} ${categoryIndex + 1}: ${category}`, 14, startY, {
-      align: "left",
+  Object.entries(categorizedRows)
+    .sort(([catA], [catB]) => catA.localeCompare(catB))
+    .forEach(([category, rows], categoryIndex) => {
+      doc.setFontSize(12);
+      // doc.setFont("Roboto");
+      doc.text(`${t.category} ${categoryIndex + 1}: ${category}`, 14, startY, {
+        align: "left",
+      });
+      startY += 7;
+
+      // Estimate table
+      const tableColumnPDF = [
+        "ID",
+        t.workName,
+        t.unit,
+        t.quantity,
+        `${t.priceForUnit} (€)`,
+        `${t.total} (€)`,
+      ];
+      const tableRowsPDF = tableRows.map((row, workIndex) => [
+        `${categoryIndex + 1}.${workIndex + 1}`,
+        row.workName,
+        row.unit,
+        row.quantity,
+        Number(row.priceForUnit || 0).toFixed(2),
+        Number(row.result || 0).toFixed(2),
+      ]);
+
+      autoTable(doc, {
+        head: [tableColumnPDF],
+        body: tableRowsPDF,
+        startY,
+        theme: "plain",
+        styles: {
+          textColor: [0, 0, 0],
+          lineColor: [0, 0, 0],
+          lineWidth: 0.3,
+          font: "Roboto",
+          fontStyle: "normal",
+        },
+      });
+
+      startY = doc.lastAutoTable.finalY + 10;
+
+      // console.log(doc.getFontList());
     });
-    startY += 7;
-
-    // Estimate table
-    const tableColumnPDF = [
-      "ID",
-      t.workName,
-      t.unit,
-      t.quantity,
-      `${t.priceForUnit} (€)`,
-      `${t.total} (€)`,
-    ];
-    const tableRowsPDF = tableRows.map((row, workIndex) => [
-      `${categoryIndex + 1}.${workIndex + 1}`,
-      row.workName,
-      row.unit,
-      row.quantity,
-      Number(row.priceForUnit || 0).toFixed(2),
-      Number(row.result || 0).toFixed(2),
-    ]);
-
-    autoTable(doc, {
-      head: [tableColumnPDF],
-      body: tableRowsPDF,
-      startY,
-      theme: "plain",
-      styles: {
-        textColor: [0, 0, 0],
-        lineColor: [0, 0, 0],
-        lineWidth: 0.3,
-        font: "Roboto",
-        fontStyle: "normal",
-      },
-    });
-
-    startY = doc.lastAutoTable.finalY + 10;
-
-    // console.log(doc.getFontList());
-  });
 
   // Conclusions
   // let finalY = doc.lastAutoTable.finalY + 10;
@@ -127,7 +129,7 @@ const generatePDF = (
   const rightAlignX = pageWidth - marginRight;
 
   doc.setFontSize(10);
-  doc.setFont("Roboto", "normal");
+  // doc.setFont("Roboto", "normal");
 
   doc.text(`${t.subtotal}: ${total.toFixed(2)} €`, rightAlignX, startY, {
     align: "right",

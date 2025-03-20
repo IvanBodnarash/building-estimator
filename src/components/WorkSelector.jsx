@@ -69,9 +69,11 @@ export default function WorkSelector({
                 exit={{ opacity: 0, x: 10 }}
                 className="w-full bg-white shadow-lg"
               >
-                {works
-                  .filter((work) => work.category === activeCategory)
-                  .map((work) => (
+                {(() => {
+                  const currentCategory = works.find(
+                    (cat) => cat.category === activeCategory
+                  );
+                  return currentCategory?.works.map((work) => (
                     <div
                       key={work.id}
                       onClick={(e) => {
@@ -87,7 +89,8 @@ export default function WorkSelector({
                     >
                       {work.translations?.[estimateLanguage] || work.name}
                     </div>
-                  ))}
+                  ));
+                })()}
               </motion.div>
             )}
           </div>

@@ -83,7 +83,7 @@ export default function AddWorkForm({
         category,
         formula,
         unit,
-        priceForUnit,
+        priceForUnit: Number(priceForUnit),
         translations: updatedTranslations,
         variables,
       });
@@ -97,7 +97,7 @@ export default function AddWorkForm({
                 category,
                 formula,
                 unit,
-                priceForUnit,
+                priceForUnit: Number(priceForUnit),
                 translations: updatedTranslations,
                 variables,
               }
@@ -110,7 +110,7 @@ export default function AddWorkForm({
         category,
         formula,
         unit,
-        priceForUnit,
+        priceForUnit: Number(priceForUnit),
         translations: updatedTranslations,
         variables,
       };

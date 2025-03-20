@@ -42,10 +42,12 @@ export default function MainPage() {
   async function handleDeleteEstimate(estimateId) {
     if (confirm(t("deleteEstimateConfirmation"))) {
       await db.estimates.delete(estimateId);
-      await db.estimateWorks.where("estimateId").equals(estimateId).delete();
-      loadEstimates();
-    } else {
-      return;
+      if (db.estimateWorks) {
+        await db.estimateWorks.where("estimateId").equals(estimateId).delete();
+      }
+      setEstimates((prevEstimates) =>
+        prevEstimates.filter((estimate) => estimate.id !== estimateId)
+      );
     }
   }
 
@@ -81,7 +83,9 @@ export default function MainPage() {
       {isModalOpen && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center md:items-center items-start md:pt-0 pt-24 z-50">
           <div className="bg-white p-6 rounded-lg shadow-lg lg:w-1/3 md:w-1/2 sm:w-1/2 w-3/4">
-            <h2 className="lg:text-xl md:text-lg sm:text-md text-md font-bold mb-4">{t("newEstimate")}</h2>
+            <h2 className="lg:text-xl md:text-lg sm:text-md text-md font-bold mb-4">
+              {t("newEstimate")}
+            </h2>
             <input
               type="text"
               className="border p-2 w-full mb-4 md:text-md sm:text-sm text-sm"
