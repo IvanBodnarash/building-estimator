@@ -14,6 +14,9 @@ export default function CustomWorkSelect({ works, selectedWorkId, onSelect }) {
     return acc;
   }, {});
 
+  const defaultCategoryKey = Object.keys(categorizedWorks)[0] || null;
+  const displayCategory = hoverCategory || defaultCategoryKey;
+
   const selectedWork = works.find((work) => work.id === selectedWorkId);
   const selectedWorkName =
     selectedWork?.translations?.[estimateLanguage] ||
@@ -52,7 +55,7 @@ export default function CustomWorkSelect({ works, selectedWorkId, onSelect }) {
 
           <div className="w-2/3 overflow-auto max-h-64">
             {hoverCategory &&
-              categorizedWorks[hoverCategory]?.map((work) => (
+              categorizedWorks[displayCategory]?.map((work) => (
                 <div
                   key={work.id}
                   className="p-2 hover:bg-gray-300 cursor-pointer"
@@ -60,7 +63,7 @@ export default function CustomWorkSelect({ works, selectedWorkId, onSelect }) {
                     onSelect(work.id);
                     setIsOpen(false);
                   }}
-                >
+                >s
                   {work.translations?.[estimateLanguage] ||
                     work.name ||
                     "Unnamed Work"}

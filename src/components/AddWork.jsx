@@ -77,55 +77,150 @@ export default function AddWorkForm({
       ])
     );
 
-    if (editingWork) {
-      await db.works.update(editingWork.id, {
-        name: workName,
-        category,
-        formula,
-        unit,
-        priceForUnit: Number(priceForUnit),
-        translations: updatedTranslations,
-        variables,
-      });
+    // if (editingWork) {
+    //   await db.works.update(editingWork.id, {
+    //     name: workName,
+    //     category,
+    //     formula,
+    //     unit,
+    //     priceForUnit: Number(priceForUnit),
+    //     translations: updatedTranslations,
+    //     variables,
+    //   });
 
-      setWorks((prevWorks) =>
-        prevWorks.map((work) =>
-          work.id === editingWork.id
-            ? {
-                ...work,
-                name: workName,
-                category,
-                formula,
-                unit,
-                priceForUnit: Number(priceForUnit),
-                translations: updatedTranslations,
-                variables,
-              }
-            : work
-        )
-      );
-    } else {
-      const newWork = {
-        name: workName,
-        category,
-        formula,
-        unit,
-        priceForUnit: Number(priceForUnit),
-        translations: updatedTranslations,
-        variables,
-      };
+    //   setWorks((prevWorks) =>
+    //     prevWorks.map((work) =>
+    //       work.id === editingWork.id
+    //         ? {
+    //             ...work,
+    //             name: workName,
+    //             category,
+    //             formula,
+    //             unit,
+    //             priceForUnit: Number(priceForUnit),
+    //             translations: updatedTranslations,
+    //             variables,
+    //           }
+    //         : work
+    //     )
+    //   );
+    // } else {
+    //   const newWork = {
+    //     name: workName,
+    //     category,
+    //     formula,
+    //     unit,
+    //     priceForUnit: Number(priceForUnit),
+    //     translations: updatedTranslations,
+    //     variables,
+    //   };
 
-      const id = await db.works.add(newWork);
+    //   const id = await db.works.add(newWork);
 
-      setWorks((prevWorks) => [...prevWorks, { ...newWork, id }]);
+    //   setWorks((prevWorks) => [...prevWorks, { ...newWork, id }]);
 
-      setIsSuccess(true);
+    //   setIsSuccess(true);
 
-      setTimeout(() => {
-        setIsSuccess(false);
-      }, 3000);
+    //   setTimeout(() => {
+    //     setIsSuccess(false);
+    //   }, 3000);
+    // }
+
+    // setWorkName("");
+    // setFormula("a * U");
+    // setUnit("m2");
+    // setPriceForUnit("");
+    // setVariables([]);
+    // setEditingWork(null);
+    // setCategory("");
+    // setTranslations({ en: "", es: "", uk: "", ru: "" });
+
+    // if (onWorkAdded) {
+    //   onWorkAdded();
+    // }
+
+    try {
+      if (editingWork) {
+        await db.works.update(editingWork.id, {
+          name: workName,
+          category,
+          formula,
+          unit,
+          priceForUnit: Number(priceForUnit) || 0,
+          translations: updatedTranslations,
+          variables,
+        });
+        console.log("Робота оновлена, id:", editingWork.id);
+        setWorks((prevWorks) =>
+          prevWorks.map((work) =>
+            work.id === editingWork.id
+              ? {
+                  ...work,
+                  name: workName,
+                  category,
+                  formula,
+                  unit,
+                  priceForUnit: Number(priceForUnit) || 0,
+                  translations: updatedTranslations,
+                  variables,
+                }
+              : work
+          )
+        );
+      } else {
+        const newWork = {
+          name: workName,
+          formula,
+          unit,
+          priceForUnit: Number(priceForUnit) || 0,
+          translations: updatedTranslations,
+          variables,
+        };
+
+        const existingCategoryRecord = await db.works
+          .where("category")
+          .equals(category)
+          .first();
+
+        if (existingCategoryRecord) {
+          const updatedWorksArray = [...existingCategoryRecord.works, newWork];
+          await db.works.update(existingCategoryRecord.id, {
+            works: updatedWorksArray,
+          });
+          console.log(
+            "Нову роботу додано до існуючої категорії, id:",
+            existingCategoryRecord.id
+          );
+        } else {
+          // Якщо запису для цієї категорії немає – створюємо новий запис із полем works як масивом з однією роботою
+          const categoryDetails = categories.find(
+            (cat) => cat.category === category
+          );
+          const newCategoryRecord = {
+            category,
+            translations: categoryDetails
+              ? categoryDetails.translations
+              : { en: category },
+            works: [newWork],
+          };
+          const newId = await db.works.add(newCategoryRecord);
+          console.log("Створено нову категорію з роботою, id:", newId);
+        }
+
+        // console.log("Спроба додати нову роботу:", newWork);
+        // const id = await db.works.add(newWork);
+        // console.log("Нова робота додана з id:", id);
+        // setWorks((prevWorks) => [...prevWorks, { ...newWork, id }]);
+        setIsSuccess(true);
+        setTimeout(() => {
+          setIsSuccess(false);
+        }, 3000);
+      }
+    } catch (error) {
+      console.error("Помилка при збереженні роботи:", error);
     }
 
+    // Очищення форми
     setWorkName("");
     setFormula("a * U");
     setUnit("m2");

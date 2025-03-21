@@ -9,7 +9,8 @@ const generatePDF = (
   total,
   taxRate,
   taxAmount,
-  estimateLanguage
+  estimateLanguage,
+  selectedCategories
 ) => {
   if (!estimate || tableRows.length === 0) {
     alert(
@@ -40,60 +41,96 @@ const generatePDF = (
 
   // Group works by category
   const categorizedRows = tableRows.reduce((acc, row) => {
-    const category = row.category || "Uncategorized";
-    if (!acc[category]) {
-      acc[category] = [];
+    const categoryName =
+      row.category ||
+      selectedCategories.find(
+        (cat) => Number(cat.id) === Number(row.categoryId)
+      )?.category ||
+      "Uncategorized";
+    if (!acc[categoryName]) {
+      acc[categoryName] = [];
     }
-    acc[category].push(row);
+    acc[categoryName].push(row);
     return acc;
   }, {});
+
+  // Estimate table
+  const tableColumnPDF = [
+    "ID",
+    t.workName,
+    t.unit,
+    t.quantity,
+    `${t.priceForUnit} (€)`,
+    `${t.total} (€)`,
+  ];
+  const tableRowsPDF = [];
 
   Object.entries(categorizedRows)
     .sort(([catA], [catB]) => catA.localeCompare(catB))
     .forEach(([category, rows], categoryIndex) => {
-      doc.setFontSize(12);
-      // doc.setFont("Roboto");
-      doc.text(`${t.category} ${categoryIndex + 1}: ${category}`, 14, startY, {
-        align: "left",
-      });
-      startY += 7;
+      const translatedCategory =
+        selectedCategories.find((cat) => cat.category === category)
+          ?.translations?.[estimateLanguage] || category;
 
-      // Estimate table
-      const tableColumnPDF = [
-        "ID",
-        t.workName,
-        t.unit,
-        t.quantity,
-        `${t.priceForUnit} (€)`,
-        `${t.total} (€)`,
-      ];
-      const tableRowsPDF = tableRows.map((row, workIndex) => [
-        `${categoryIndex + 1}.${workIndex + 1}`,
-        row.workName,
-        row.unit,
-        row.quantity,
-        Number(row.priceForUnit || 0).toFixed(2),
-        Number(row.result || 0).toFixed(2),
+      tableRowsPDF.push([
+        {
+          content: `${categoryIndex + 1}. ${translatedCategory}`,
+          colSpan: tableColumnPDF.length,
+          styles: {
+            halign: "left",
+            fillColor: [230, 230, 230],
+            textColor: 0,
+            font: "Roboto",
+          },
+        },
       ]);
 
-      autoTable(doc, {
-        head: [tableColumnPDF],
-        body: tableRowsPDF,
-        startY,
-        theme: "plain",
-        styles: {
-          textColor: [0, 0, 0],
-          lineColor: [0, 0, 0],
-          lineWidth: 0.3,
-          font: "Roboto",
-          fontStyle: "normal",
-        },
+      rows.forEach((row, workIndex) => {
+        tableRowsPDF.push([
+          `${categoryIndex + 1}.${workIndex + 1}`,
+          row.workName,
+          row.unit,
+          row.quantity,
+          Number(row.priceForUnit || 0).toFixed(2),
+          Number(row.result || 0).toFixed(2),
+        ]);
       });
+      categoryIndex++;
 
-      startY = doc.lastAutoTable.finalY + 10;
+      // doc.setFontSize(12);
+      // doc.setFont("Roboto");
+      // doc.text(`${t.category} ${categoryIndex + 1}: ${category}`, 14, startY, {
+      //   align: "left",
+      // });
+      // startY += 7;
+
+      // const tableRowsPDF = tableRows.map((row, workIndex) => [
+      //   `${categoryIndex + 1}.${workIndex + 1}`,
+      //   row.workName,
+      //   row.unit,
+      //   row.quantity,
+      //   Number(row.priceForUnit || 0).toFixed(2),
+      //   Number(row.result || 0).toFixed(2),
+      // ]);
+      // startY = doc.lastAutoTable.finalY + 10;
 
       // console.log(doc.getFontList());
     });
+
+  autoTable(doc, {
+    head: [tableColumnPDF],
+    body: tableRowsPDF,
+    startY,
+    theme: "plain",
+    styles: {
+      textColor: [0, 0, 0],
+      lineColor: [0, 0, 0],
+      lineWidth: 0.3,
+      font: "Roboto",
+      fontStyle: "normal",
+    },
+    margin: { left: 14, right: 14 },
+  });
 
   // Conclusions
   // let finalY = doc.lastAutoTable.finalY + 10;
@@ -124,6 +161,7 @@ const generatePDF = (
 
   // window.open(doc.output("bloburl"), "_blank");
 
+  const finalY = doc.lastAutoTable.finalY + 10;
   const pageWidth = doc.internal.pageSize.width;
   const marginRight = 14;
   const rightAlignX = pageWidth - marginRight;
@@ -131,19 +169,19 @@ const generatePDF = (
   doc.setFontSize(10);
   // doc.setFont("Roboto", "normal");
 
-  doc.text(`${t.subtotal}: ${total.toFixed(2)} €`, rightAlignX, startY, {
+  doc.text(`${t.subtotal}: ${total.toFixed(2)} €`, rightAlignX, finalY, {
     align: "right",
   });
   doc.text(
     `${t.tax}: (${taxRate}%): ${taxAmount.toFixed(2)} €`,
     rightAlignX,
-    startY + 7,
+    finalY + 7,
     { align: "right" }
   );
   doc.text(
     `${t.totalWithTax}: ${(total + taxAmount).toFixed(2)} €`,
     rightAlignX,
-    startY + 14,
+    finalY + 14,
     {
       align: "right",
     }

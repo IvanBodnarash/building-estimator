@@ -1,9 +1,9 @@
 export const categories = [
   {
     id: 1,
-    category: "Paining",
+    category: "Painting",
     translations: {
-      en: "Paining",
+      en: "Painting",
       es: "Pintura",
       uk: "Фарбування",
       ru: "Покраска",

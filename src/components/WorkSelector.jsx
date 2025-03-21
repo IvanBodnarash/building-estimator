@@ -30,7 +30,7 @@ export default function WorkSelector({
   return (
     <div className="relative w-full">
       <Menu as="div" className="relative inline-block text-left w-full">
-        <MenuButton className="border rounded md:p-2 p-1 w-full flex justify-between items-center text-left bg-white shadow-sm">
+        <MenuButton className="border rounded md:p-2 p-1 flex justify-between items-center text-left bg-white shadow-sm">
           {row.workName || "Select Work"}
           <ChevronRightIcon className="lg:w-5 lg:h-5 w-3 h-3 ml-2 text-gray-400" />
         </MenuButton>
@@ -40,10 +40,10 @@ export default function WorkSelector({
           initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}
           exit={{ opacity: 0, scale: 0.95 }}
-          className="absolute mt-1 bg-white shadow-lg border max-w-96 max-h-120 overflow-auto z-50"
+          className="absolute mt-1 bg-gray-50 shadow-lg border max-h-120 overflow-auto z-50 rounded-b-xl"
         >
           <div className="flex">
-            <div className="md:w-68 w-full border-r">
+            <div className="border-r">
               {categories.map((category) => (
                 <div
                   key={category.category}
@@ -53,7 +53,7 @@ export default function WorkSelector({
                   onMouseEnter={() =>
                     !isMobile && setActiveCategory(category.category)
                   }
-                  className="px-3 py-2 w-full flex font-bold justify-between items-center cursor-pointer hover:bg-blue-100 text-gray-900"
+                  className="px-3 py-2 min-w-64 flex font-bold justify-between items-center cursor-pointer hover:bg-blue-100 text-gray-900"
                 >
                   {category.translations?.[estimateLanguage] ||
                     category.category}
@@ -67,7 +67,7 @@ export default function WorkSelector({
                 initial={{ opacity: 0, x: 10 }}
                 animate={{ opacity: 1, x: 0 }}
                 exit={{ opacity: 0, x: 10 }}
-                className="w-full bg-white shadow-lg"
+                className=" bg-cyan-800 text-slate-200 shadow-lg"
               >
                 {(() => {
                   const currentCategory = works.find(
@@ -85,7 +85,7 @@ export default function WorkSelector({
                         e.preventDefault();
                         handleWorkSelect(row.id, work.id);
                       }}
-                      className="w-68 px-3 py-2 cursor-pointer hover:bg-blue-200 text-gray-900"
+                      className="w-68 px-3 py-2 cursor-pointer hover:bg-cyan-950"
                     >
                       {work.translations?.[estimateLanguage] || work.name}
                     </div>

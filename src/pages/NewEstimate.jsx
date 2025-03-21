@@ -13,7 +13,7 @@ import generatePDF from "../utils/generatePDF";
 
 import { LanguageContext } from "../context/LanguageContext";
 
-import { IoMdAdd } from "react-icons/io";
+// import { IoMdAdd } from "react-icons/io";
 import { MdModeEdit } from "react-icons/md";
 import { RiDeleteBin2Fill } from "react-icons/ri";
 
@@ -26,7 +26,6 @@ export default function Estimate() {
   const [selectedCategories, setSelectedCategories] = useState([]);
   const [tableRows, setTableRows] = useState([]);
   const [selectedCategory, setSelectedCategory] = useState("");
-  // const [categories, setCategories] = useState([]);
 
   const [editingWork, setEditingWork] = useState(null);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
@@ -43,18 +42,6 @@ export default function Estimate() {
     useContext(LanguageContext);
 
   const langTranslations = t("language");
-
-  // const loadWorks = async () => {
-  //   const savedWorks = await db.works.toArray();
-
-  //   if (savedWorks.length === 0) {
-  //     await db.works.bulkAdd(standardWorksDB);
-  //     console.log("✅ Standard works added!");
-  //   }
-
-  //   const updatedWorks = await db.works.toArray();
-  //   setWorks(updatedWorks);
-  // };
 
   const loadWorks = async () => {
     let savedWorks = await db.works.toArray();
@@ -75,26 +62,6 @@ export default function Estimate() {
     setEstimate(storedEstimate);
     setTableRows(storedEstimate.works || []);
     setSelectedCategories(storedEstimate.categories || []);
-
-    // console.log("🔹 Завантажений кошторис:", storedEstimate);
-
-    // const storedWorks = storedEstimate.works || [];
-    // setTableRows(storedWorks);
-
-    // console.log("🔹 Завантажені роботи:", storedWorks);
-
-    // const storedCategories = await db.categories
-    //   .where("estimateId")
-    //   .equals(Number(estimateId))
-    //   .toArray();
-    // setSelectedCategories(
-    //   storedCategories.map((cat) => ({
-    //     id: cat.id,
-    //     category: cat.categoryName,
-    //   }))
-    // );
-
-    // console.log("🔹 Завантажені категорії:", storedCategories);
   };
 
   useEffect(() => {
@@ -136,11 +103,6 @@ export default function Estimate() {
 
     if (selectedCategories.some((cat) => cat.category === selectedCategory))
       return;
-
-    // const categoryExists = selectedCategories.some(
-    //   (cat) => cat.category === selectedCategory
-    // );
-    // if (categoryExists) return;
 
     const maxId =
       selectedCategories.length > 0
@@ -185,38 +147,6 @@ export default function Estimate() {
 
     setTableRows((prev) => [...prev, newRow]);
   };
-
-  // const handleWorkSelect = (rowId, workId) => {
-  //   const selectedWork = works.find((w) => w.id === workId);
-
-  //   setTimeout(() => {
-  //     setTableRows((prev) =>
-  //       prev.map((row) =>
-  //         row.id === rowId
-  //           ? {
-  //               ...row,
-  //               workId: selectedWork.id,
-  //               workName:
-  //                 selectedWork.translations[estimateLanguage] ||
-  //                 selectedWork.name ||
-  //                 "Unnamed Work",
-  //               categoryId:
-  //                 selectedCategories.find(
-  //                   (cat) => cat.category === selectedWork.category
-  //                 )?.id || row.categoryId,
-  //               formula: selectedWork.formula,
-  //               unit: selectedWork.unit,
-  //               priceForUnit: selectedWork.priceForUnit || 0,
-  //               result: calculateFormula(selectedWork.formula, {
-  //                 a: 1,
-  //                 U: selectedWork.priceForUnit,
-  //               }),
-  //             }
-  //           : row
-  //       )
-  //     );
-  //   }, 100);
-  // };
 
   const handleWorkSelect = (rowId, workId) => {
     let selectedWork;
@@ -389,21 +319,6 @@ export default function Estimate() {
       return;
     }
 
-    // const updatedEstimate = {
-    //   ...estimate,
-    //   works: tableRows.map((row) => ({
-    //     id: row.id,
-    //     categoryId: row.categoryId,
-    //     workId: row.workId || null,
-    //     workName: row.workName || "",
-    //     formula: row.formula || "",
-    //     unit: row.unit || "",
-    //     quantity: row.quantity || 0,
-    //     priceForUnit: row.priceForUnit || 0,
-    //     result: row.result || 0,
-    //   })),
-    // };
-
     const updatedEstimate = {
       ...estimate,
       works: tableRows,
@@ -411,9 +326,7 @@ export default function Estimate() {
     };
 
     await db.estimates.update(Number(estimateId), updatedEstimate);
-
     await db.categories.where("estimateId").equals(Number(estimateId)).delete();
-
     await db.categories.bulkAdd(
       selectedCategories.map((cat) => ({
         estimateId: Number(estimateId),
@@ -425,8 +338,7 @@ export default function Estimate() {
     alert(t("savingEstimateSuccess"));
   };
 
-  console.log("TableRows:", tableRows);
-  console.log("Selected Categories:", selectedCategories);
+  console.log(works);
 
   if (!estimate)
     return (
@@ -466,7 +378,7 @@ export default function Estimate() {
               {t("estimateLanguage")}:
             </label>
             <select
-              className="sm:p-2 p-0 outline-none lg:text-lg md:text-md sm:text-sm text-xs cursor-"
+              className="sm:p-2 p-0 outline-none lg:text-lg md:text-md sm:text-sm text-xs cursor-pointer"
               value={estimateLanguage}
               onChange={(e) => setEstimateLanguage(e.target.value)}
             >
@@ -496,10 +408,14 @@ export default function Estimate() {
               <React.Fragment key={category.id}>
                 <tr className="bg-gray-200 font-bold">
                   <td colSpan="8" className="p-2 border">
-                    {`${categoryIndex + 1} ${category.category}`}
+                    {`${categoryIndex + 1} ${
+                      allCategories.find(
+                        (cat) => cat.category === category.category
+                      )?.translations?.[estimateLanguage] || category.category
+                    }`}
                     <button
                       onClick={() => removeCategory(category.id)}
-                      className="text-black hover:text-red-800 cursor-pointer"
+                      className="text-black hover:text-red-800 cursor-pointer ml-4"
                       title={t("delete")}
                     >
                       ✖
@@ -590,10 +506,10 @@ export default function Estimate() {
                   ))}
 
                 <tr>
-                  <td colSpan="8" className="p-2">
+                  <td colSpan="8" className="">
                     <button
                       onClick={() => addRow(category.id)}
-                      className="text-blue-500"
+                      className="bg-cyan-600 text-white py-1 px-4 cursor-pointer rounded-b-xl border-t-3 mb-2 transition-all hover:bg-cyan-500"
                     >
                       + {t("addWork")}
                     </button>
@@ -601,40 +517,29 @@ export default function Estimate() {
                 </tr>
               </React.Fragment>
             ))}
-
-            <tr>
-              <td colSpan="8" className="p-4">
-                <select
-                  onChange={(e) => setSelectedCategory(e.target.value)}
-                  className="border p-2 rounded"
-                >
-                  <option value="">{t("selectCategory")}</option>
-                  {allCategories.map((cat) => (
-                    <option key={cat.category} value={cat.category}>
-                      {cat.translations[estimateLanguage] || cat.category}
-                    </option>
-                  ))}
-                </select>
-                <button
-                  onClick={addCategory}
-                  className="bg-cyan-800 hover:bg-cyan-600 text-white py-2 px-4 rounded cursor-pointer"
-                >
-                  + {t("addCategory")}
-                </button>
-              </td>
-            </tr>
-            {/* <tr>
-              <td colSpan="8" className="p-2">
-                <button
-                  onClick={() => addRow(category.id)}
-                  className="text-cyan-800"
-                >
-                  + {t("addWork")}
-                </button>
-              </td>
-            </tr> */}
           </tbody>
         </table>
+        <div className="flex flex-wrap gap-4 items-center my-4 lg:text-lg md:text-md sm:text-sm text-xs">
+          <select
+            onChange={(e) => setSelectedCategory(e.target.value)}
+            className="border p-2 rounded cursor-pointer outline-none"
+          >
+            <option className="bg-gray-200" value="">
+              {t("selectCategory")}
+            </option>
+            {allCategories.map((cat) => (
+              <option key={cat.category} value={cat.category}>
+                {cat.translations[estimateLanguage] || cat.category}
+              </option>
+            ))}
+          </select>
+          <button
+            onClick={addCategory}
+            className="bg-cyan-800 hover:bg-cyan-600 text-white py-2 px-4 rounded cursor-pointer"
+          >
+            + {t("addCategory")}
+          </button>
+        </div>
 
         {/* <div className="flex items-center justify-center">
           <button
@@ -695,7 +600,8 @@ export default function Estimate() {
                   total,
                   taxRate,
                   taxAmount,
-                  estimateLanguage
+                  estimateLanguage,
+                  selectedCategories
                 )
               }
             >
