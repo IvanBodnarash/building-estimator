@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Menu, MenuButton, Transition } from "@headlessui/react";
 import { motion } from "framer-motion";
 import { ChevronRightIcon } from "@heroicons/react/24/solid";
@@ -20,11 +20,22 @@ export default function WorkSelector({
     return () => window.removeEventListener("resize", checkIfMobile);
   }, []);
 
+  // const handleCategoryClick = (category, event) => {
+  //   event.stopPropagation();
+  //   setActiveCategory((prevCategory) =>
+  //     prevCategory === category ? null : category
+  //   );
+  // };
+
+  const defaultCategory = useMemo(() => {
+    return categories.length ? categories[0].category : null;
+  }, [categories]);
+
+  const currentCategory = activeCategory || defaultCategory;
+
   const handleCategoryClick = (category, event) => {
     event.stopPropagation();
-    setActiveCategory((prevCategory) =>
-      prevCategory === category ? null : category
-    );
+    setActiveCategory(category);
   };
 
   return (
@@ -50,9 +61,9 @@ export default function WorkSelector({
                   onClick={(event) =>
                     handleCategoryClick(category.category, event)
                   }
-                  onMouseEnter={() =>
-                    !isMobile && setActiveCategory(category.category)
-                  }
+                  onMouseEnter={() => {
+                    if (!isMobile) setActiveCategory(cat.category);
+                  }}
                   className="px-3 py-2 min-w-64 flex font-bold justify-between items-center cursor-pointer hover:bg-blue-100 text-gray-900"
                 >
                   {category.translations?.[estimateLanguage] ||
@@ -62,7 +73,7 @@ export default function WorkSelector({
               ))}
             </div>
 
-            {activeCategory && (
+            {currentCategory && (
               <motion.div
                 initial={{ opacity: 0, x: 10 }}
                 animate={{ opacity: 1, x: 0 }}
@@ -70,10 +81,10 @@ export default function WorkSelector({
                 className=" bg-cyan-800 text-slate-200 shadow-lg"
               >
                 {(() => {
-                  const currentCategory = works.find(
-                    (cat) => cat.category === activeCategory
+                  const currentCategoryObj = works.find(
+                    (cat) => cat.category === currentCategory
                   );
-                  return currentCategory?.works.map((work) => (
+                  return currentCategoryObj?.works.map((work) => (
                     <div
                       key={work.id}
                       onClick={(e) => {
@@ -81,8 +92,8 @@ export default function WorkSelector({
                         e.stopPropagation();
                         handleWorkSelect(row.id, work.id);
                       }}
-                      onTouchStart={(e) => {
-                        e.preventDefault();
+                      onTouchStart={() => {
+                        // e.preventDefault();
                         handleWorkSelect(row.id, work.id);
                       }}
                       className="w-68 px-3 py-2 cursor-pointer hover:bg-cyan-950"

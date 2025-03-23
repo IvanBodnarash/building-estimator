@@ -1,11 +1,11 @@
-import React, { useContext, useEffect, useState } from "react";
+import React, { useContext, useEffect, useMemo, useState } from "react";
 import { useParams } from "react-router-dom";
 
 import { evaluate } from "mathjs";
 import { motion } from "framer-motion";
 
 import standardWorksDB from "../db/standardWorksDB";
-import { categories as allCategories } from "../db/categoriesDB";
+import { categories as allCategories, categories } from "../db/categoriesDB";
 import { db } from "../db/db";
 
 import formatDate from "../utils/formatDate";
@@ -51,6 +51,7 @@ export default function Estimate() {
       console.log("✅ Standard works added!");
     }
     setWorks(savedWorks);
+    console.log(works);
   };
 
   const loadEstimate = async () => {
@@ -85,15 +86,54 @@ export default function Estimate() {
   useEffect(() => {
     setTableRows((prevRows) =>
       prevRows.map((row) => {
-        const selectedWork = works.find((w) => w.id === row.workId);
-        return selectedWork
-          ? {
-              ...row,
-              workName:
-                selectedWork.translations[estimateLanguage] ||
-                selectedWork.name,
+        // const selectedWork = works.find((w) => w.id === row.workId);
+        // return selectedWork
+        //   ? {
+        //       ...row,
+        //       workName:
+        //         selectedWork.translations[estimateLanguage] ||
+        //         selectedWork.name,
+        //     }
+        //   : row;
+
+        if (row.workId) {
+          let foundWork = null;
+          for (const category of works) {
+            if (category.works) {
+              foundWork = category.works.find(
+                (work) => String(work.id) === String(row.workId)
+              );
+              if (foundWork) break;
             }
-          : row;
+          }
+          return foundWork
+            ? {
+                ...row,
+                workName:
+                  foundWork.translations[estimateLanguage] ||
+                  foundWork.workName ||
+                  "Unnamed Work",
+              }
+            : row;
+
+          // const selectedWork = works.find((w) => w.id === row.workId);
+          // return selectedWork
+          //   ? {
+          //       ...row,
+          //       workName:
+          //         selectedWork.translations[estimateLanguage] ||
+          //         selectedWork.workName ||
+          //         "Unnamed Work",
+          //     }
+          //   : row;
+        } else if (row.translations) {
+          // Кастомна робота з власними перекладами
+          return {
+            ...row,
+            workName: row.translations?.[estimateLanguage] || row.workName,
+          };
+        }
+        return row;
       })
     );
   }, [estimateLanguage, works]);
@@ -148,6 +188,8 @@ export default function Estimate() {
     setTableRows((prev) => [...prev, newRow]);
   };
 
+  console.log(editingRow);
+
   const handleWorkSelect = (rowId, workId) => {
     let selectedWork;
     let parentCategory;
@@ -186,6 +228,7 @@ export default function Estimate() {
                   a: 1,
                   U: selectedWork.priceForUnit,
                 }),
+                translations: selectedWork.translations,
               }
             : row
         )
@@ -227,16 +270,233 @@ export default function Estimate() {
     setTableRows((prevRows) => prevRows.filter((row) => row.id !== rowId));
   };
 
-  const handleEdit = (row) => {
-    const selectedWork = works.find((w) => w.id === row.workId);
+  // const handleEdit = (row) => {
+  //   const selectedWork = works.find((w) => w.id === row.workId);
 
+  //   setEditingRow({
+  //     ...row,
+  //     translations: selectedWork ? selectedWork.translations : {},
+  //   });
+
+  //   setIsEditModalOpen(true);
+  // };
+
+  const handleEdit = (row) => {
+    // const selectedWork = works.find((w) => String(w.id) === String(row.workId));
+    // setEditingRow({
+    //   ...row,
+    //   // Використовуємо переклади з selectedWork, якщо вони є, інакше fallback з row.translations
+    //   translations:
+    //     (selectedWork && selectedWork.translations) || row.translations || {},
+    // });
+    // setIsEditModalOpen(true);
+
+    let updatedTranslations = {};
+    if (row.workId) {
+      updatedTranslations = row.translations || {};
+    } else {
+      updatedTranslations = row.translations || {};
+    }
     setEditingRow({
       ...row,
-      translations: selectedWork ? selectedWork.translations : {},
+      translations: updatedTranslations,
     });
-
     setIsEditModalOpen(true);
   };
+
+  // const handleSaveEdit = async () => {
+  //   if (!editingRow || !editingRow.workId) {
+  //     console.error("Invalid editingRow or workId:", editingRow);
+  //     return;
+  //   }
+
+  //   if (editingRow.workId) {
+  //     const parentCategory = works.find(
+  //       (cat) =>
+  //         cat.works &&
+  //         cat.works.some((w) => String(w.id) === String(editingRow.workId))
+  //     );
+  //     if (!parentCategory) {
+  //       console.error(
+  //         "Parent category not found for work ID:",
+  //         editingRow.workId
+  //       );
+  //       return;
+  //     }
+
+  //     const workIndex = parentCategory.works.findIndex(
+  //       (w) => String(w.id) === String(editingRow.workId)
+  //     );
+  //     if (workIndex === -1) {
+  //       console.error(
+  //         "Work not found in parent category for work ID:",
+  //         editingRow.workId
+  //       );
+  //       return;
+  //     }
+
+  //     const selectedWork = parentCategory.works[workIndex];
+
+  //     const updatedWork = {
+  //       ...selectedWork,
+  //       workName: editingRow.workName,
+  //       translations: editingRow.translations,
+  //       formula: editingRow.formula,
+  //       unit: editingRow.unit,
+  //       priceForUnit: editingRow.priceForUnit,
+  //     };
+
+  //     const updatedWorksArray = [...parentCategory.works];
+  //     updatedWorksArray[workIndex] = updatedWork;
+
+  //     await db.works.update(parentCategory.id, {
+  //       works: updatedWorksArray,
+  //     });
+
+  //     loadWorks();
+
+  //     setTableRows((prevRows) =>
+  //       prevRows.map((row) =>
+  //         String(row.workId) === String(editingRow.workId)
+  //           ? {
+  //               ...row,
+  //               workName:
+  //                 updatedWork.translations[estimateLanguage] ||
+  //                 updatedWork.workName ||
+  //                 "Unnamed Work",
+  //               category: editingRow.category,
+  //               formula: editingRow.formula,
+  //               unit: editingRow.unit,
+  //               priceForUnit: editingRow.priceForUnit,
+  //               result: calculateFormula(updatedWork.formula, {
+  //                 a: row.quantity || 1,
+  //                 U: updatedWork.priceForUnit,
+  //               }),
+  //             }
+  //           : row
+  //       )
+  //     );
+
+  //     setIsEditModalOpen(false);
+  //   } else {
+  //     setTableRows((prevRows) =>
+  //       prevRows.map((row) =>
+  //         row.id === editingRow.id
+  //           ? {
+  //               ...editingRow,
+  //               workName:
+  //                 editingRow.translations[estimateLanguage] ||
+  //                 editingRow.workName ||
+  //                 "Unnamed Work",
+  //             }
+  //           : row
+  //       )
+  //     );
+
+  //     setIsEditModalOpen(false);
+  //   }
+
+  //   // const parentCategory = works.find(
+  //   //   (cat) => cat.works && cat.works.some((w) => w.id === editingRow.workId)
+  //   // );
+  //   // if (!parentCategory) {
+  //   //   console.error(
+  //   //     "Parent category not found for work ID:",
+  //   //     editingRow.workId
+  //   //   );
+  //   //   return;
+  //   // }
+
+  //   // const workIndex = parentCategory.works.findIndex(
+  //   //   (w) => w.id === editingRow.workId
+  //   // );
+  //   // if (workIndex === -1) {
+  //   //   console.error(
+  //   //     "Work not found in parent category for work ID:",
+  //   //     editingRow.workId
+  //   //   );
+  //   //   return;
+  //   // }
+
+  //   // const selectedWork = works.find((w) => w.id === editingRow.workId);
+  //   // const selectedWork = parentCategory.works[workIndex];
+
+  //   // const updatedWork = {
+  //   //   ...selectedWork,
+  //   //   workName: editingRow.workName,
+  //   //   translations: editingRow.translations,
+  //   //   formula: editingRow.formula,
+  //   //   unit: editingRow.unit,
+  //   //   priceForUnit: editingRow.priceForUnit,
+  //   // };
+
+  //   // const updatedWorksArray = [...parentCategory.works];
+  //   // updatedWorksArray[workIndex] = updatedWork;
+
+  //   // await db.works.update(parentCategory.id, {
+  //   //   works: updatedWorksArray,
+  //   // });
+
+  //   // loadWorks();
+
+  //   // if (!selectedWork) {
+  //   //   console.error("Work not found:", editingRow.workId);
+  //   //   return;
+  //   // }
+
+  //   // const updatedWork = {
+  //   //   ...selectedWork,
+  //   //   workName: editingRow.workName,
+  //   //   translations: editingRow.translations,
+  //   //   formula: editingRow.formula,
+  //   //   unit: editingRow.unit,
+  //   //   priceForUnit: editingRow.priceForUnit,
+  //   // };
+
+  //   // const updatedWorksArray = [...parentCategory.works];
+  //   // updatedWorksArray[workIndex] = updatedWork;
+
+  //   // await db.works.update(parentCategory.id, {
+  //   //   works: updatedWorksArray,
+  //   // });
+
+  //   // loadWorks();
+
+  //   // const updatedTranslations = editingRow.translations || {};
+
+  //   // await db.works.update(editingRow.workId, {
+  //   //   name: updatedTranslations["en"] || editingRow.workName,
+  //   //   category: editingRow.category,
+  //   //   translations: updatedTranslations,
+  //   //   formula: editingRow.formula,
+  //   //   unit: editingRow.unit,
+  //   //   priceForUnit: editingRow.priceForUnit,
+  //   // });
+
+  //   // loadWorks();
+
+  //   // setTableRows((prevRows) =>
+  //   //   prevRows.map((row) =>
+  //   //     String(row.workId) === String(editingRow.workId)
+  //   //       ? {
+  //   //           ...row,
+  //   //           workName:
+  //   //             updatedTranslations[estimateLanguage] || editingRow.workName,
+  //   //           category: editingRow.category,
+  //   //           formula: editingRow.formula,
+  //   //           unit: editingRow.unit,
+  //   //           priceForUnit: editingRow.priceForUnit,
+  //   //           result: calculateFormula(selectedWork.formula, {
+  //   //             a: row.quantity || 1,
+  //   //             U: selectedWork.priceForUnit,
+  //   //           }),
+  //   //         }
+  //   //       : row
+  //   //   )
+  //   // );
+
+  //   // setIsEditModalOpen(false);
+  // };
 
   const handleSaveEdit = async () => {
     if (!editingRow || !editingRow.workId) {
@@ -244,47 +504,75 @@ export default function Estimate() {
       return;
     }
 
-    const selectedWork = works.find((w) => w.id === editingRow.workId);
+    try {
+      const parentCategory = works.find(
+        (cat) =>
+          cat.works &&
+          cat.works.some((w) => String(w.id) === String(editingRow.workId))
+      );
+      if (!parentCategory) {
+        console.error(
+          "Parent category not found for work ID:",
+          editingRow.workId
+        );
+        return;
+      }
 
-    if (!selectedWork) {
-      console.error("Work not found:", editingRow.workId);
-      return;
+      const workIndex = parentCategory.works.findIndex(
+        (w) => String(w.id) === String(editingRow.workId)
+      );
+      if (workIndex === -1) {
+        console.error(
+          "Work not found in parent category for work ID:",
+          editingRow.workId
+        );
+        return;
+      }
+
+      const selectedWork = parentCategory.works[workIndex];
+
+      const updatedWork = {
+        ...selectedWork,
+        workName: editingRow.workName,
+        translations: editingRow.translations,
+        formula: editingRow.formula,
+        unit: editingRow.unit,
+        priceForUnit: editingRow.priceForUnit,
+      };
+
+      const updatedWorksArray = [...parentCategory.works];
+      updatedWorksArray[workIndex] = updatedWork;
+
+      await db.works.update(parentCategory.id, { works: updatedWorksArray });
+
+      await loadWorks();
+
+      setTableRows((prevRows) =>
+        prevRows.map((row) =>
+          String(row.workId) === String(editingRow.workId)
+            ? {
+                ...row,
+                workName:
+                  updatedWork.translations[estimateLanguage] ||
+                  updatedWork.workName ||
+                  "Unnamed Work",
+                category: editingRow.category,
+                formula: editingRow.formula,
+                unit: editingRow.unit,
+                priceForUnit: editingRow.priceForUnit,
+                result: calculateFormula(updatedWork.formula, {
+                  a: row.quantity || 1,
+                  U: updatedWork.priceForUnit,
+                }),
+              }
+            : row
+        )
+      );
+
+      setIsEditModalOpen(false);
+    } catch (error) {
+      console.error("Error updating work:", error);
     }
-
-    const updatedTranslations = editingRow.translations || {};
-
-    await db.works.update(editingRow.workId, {
-      name: updatedTranslations["en"] || editingRow.workName,
-      category: editingRow.category,
-      translations: updatedTranslations,
-      formula: editingRow.formula,
-      unit: editingRow.unit,
-      priceForUnit: editingRow.priceForUnit,
-    });
-
-    loadWorks();
-
-    setTableRows((prevRows) =>
-      prevRows.map((row) =>
-        row.workId === editingRow.workId
-          ? {
-              ...row,
-              workName:
-                updatedTranslations[estimateLanguage] || editingRow.workName,
-              category: editingRow.category,
-              formula: editingRow.formula,
-              unit: editingRow.unit,
-              priceForUnit: editingRow.priceForUnit,
-              result: calculateFormula(selectedWork.formula, {
-                a: row.quantity || 1,
-                U: selectedWork.priceForUnit,
-              }),
-            }
-          : row
-      )
-    );
-
-    setIsEditModalOpen(false);
   };
 
   console.log("TableRows:", tableRows);
@@ -338,7 +626,26 @@ export default function Estimate() {
     alert(t("savingEstimateSuccess"));
   };
 
-  console.log(works);
+  const normalizedRows = useMemo(() => {
+    return tableRows.reduce((acc, row) => {
+      if (row.works && Array.isArray(row.works)) {
+        row.works.forEach((work) => {
+          acc.push({
+            ...work,
+            categoryId: row.id,
+          });
+        });
+      } else {
+        acc.push(row);
+      }
+      return acc;
+    }, []);
+  }, [tableRows]);
+
+  console.log("TableRows:", tableRows);
+  console.log("NormalizedRows:", normalizedRows);
+  console.log("Selected Categories:", selectedCategories);
+  console.log("Works:", works);
 
   if (!estimate)
     return (
@@ -350,7 +657,7 @@ export default function Estimate() {
   return (
     <div className="lg:mx-38 md:mx-24 sm:mx-14 mx-4 border-x border-gray-700 px-4 py-8 overflow-hidden relative bg-gray-950/[2.5%] after:pointer-events-none after:absolute after:inset-0 after:rounded-lg after:inset-ring after:inset-ring-gray-950/5 bg-[radial-gradient(var(--pattern-fg)_1px,_transparent_0)] bg-[size:10px_10px] bg-fixed [--pattern-fg:var(--color-gray-300)]">
       <div className="flex flex-col lg:gap-4 md:gap-3 sm:gap-2 gap-1">
-        <h1 className="lg:text-4xl md:text-3xl sm:text-2xl text-xl text-cyan-950/80 font-bold">
+        <h1 className="lg:text-4xl md:text-3xl sm:text-2xl text-xl text-cyan-950/80 font-bold whitespace-normal break-words">
           {estimate.name}
         </h1>
         <p className="lg:text-xl md:text-lg sm:text-base text-sm font-bold text-cyan-800/60">
@@ -423,17 +730,18 @@ export default function Estimate() {
                   </td>
                 </tr>
 
-                {tableRows
+                {normalizedRows
                   .filter(
                     (row) => Number(row.categoryId) === Number(category.id)
                   )
                   .map((row, workIndex) => (
                     <tr key={row.id} className="border">
                       <td className="border p-2 text-center">
-                        {row.workNumber}
+                        {`${categoryIndex + 1}.${workIndex + 1}`}
                       </td>
                       <td className="p-2 flex flex-row gap-2 justify-between items-center">
                         <WorkSelector
+                          key={`${row.id}-${estimateLanguage}`}
                           works={works}
                           categories={allCategories}
                           estimateLanguage={estimateLanguage}
@@ -660,11 +968,7 @@ export default function Estimate() {
                     <input
                       type="text"
                       className="border p-2 w-full mb-2"
-                      value={
-                        editingRow?.translations?.[lang] ??
-                        selectedWork?.translations?.[lang] ??
-                        ""
-                      }
+                      value={editingRow?.translations?.[lang] ?? ""}
                       onChange={(e) =>
                         setEditingRow((prev) => ({
                           ...prev,

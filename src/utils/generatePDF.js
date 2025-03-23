@@ -2,6 +2,7 @@ import { jsPDF } from "jspdf";
 import { autoTable } from "jspdf-autotable";
 import formatDate from "./formatDate";
 import translations from "../translations/translations";
+import { categories as allCategories } from "../db/categoriesDB";
 
 const generatePDF = (
   estimate,
@@ -66,10 +67,14 @@ const generatePDF = (
   const tableRowsPDF = [];
 
   Object.entries(categorizedRows)
-    .sort(([catA], [catB]) => catA.localeCompare(catB))
+    .sort(([catA], [catB]) => {
+      const indexA = selectedCategories.findIndex((cat) => cat.category === catA);
+      const indexB = selectedCategories.findIndex((cat) => cat.category === catB);
+      return indexA - indexB;
+    })
     .forEach(([category, rows], categoryIndex) => {
       const translatedCategory =
-        selectedCategories.find((cat) => cat.category === category)
+        allCategories.find((cat) => cat.category === category)
           ?.translations?.[estimateLanguage] || category;
 
       tableRowsPDF.push([
@@ -96,25 +101,6 @@ const generatePDF = (
         ]);
       });
       categoryIndex++;
-
-      // doc.setFontSize(12);
-      // doc.setFont("Roboto");
-      // doc.text(`${t.category} ${categoryIndex + 1}: ${category}`, 14, startY, {
-      //   align: "left",
-      // });
-      // startY += 7;
-
-      // const tableRowsPDF = tableRows.map((row, workIndex) => [
-      //   `${categoryIndex + 1}.${workIndex + 1}`,
-      //   row.workName,
-      //   row.unit,
-      //   row.quantity,
-      //   Number(row.priceForUnit || 0).toFixed(2),
-      //   Number(row.result || 0).toFixed(2),
-      // ]);
-      // startY = doc.lastAutoTable.finalY + 10;
-
-      // console.log(doc.getFontList());
     });
 
   autoTable(doc, {
@@ -132,42 +118,12 @@ const generatePDF = (
     margin: { left: 14, right: 14 },
   });
 
-  // Conclusions
-  // let finalY = doc.lastAutoTable.finalY + 10;
-  // const pageWidth = doc.internal.pageSize.width;
-  // const marginRight = 14;
-
-  // doc.setFontSize(10);
-
-  // const rightAlignX = pageWidth - marginRight;
-
-  // doc.text(`${t.subtotal}: ${total.toFixed(2)} €`, rightAlignX, finalY, {
-  //   align: "right",
-  // });
-  // doc.text(
-  //   `${t.tax}: (${taxRate}%): ${taxAmount.toFixed(2)} €`,
-  //   rightAlignX,
-  //   finalY + 7,
-  //   { align: "right" }
-  // );
-  // doc.text(
-  //   `${t.totalWithTax}: ${(total + taxAmount).toFixed(2)} €`,
-  //   rightAlignX,
-  //   finalY + 14,
-  //   {
-  //     align: "right",
-  //   }
-  // );
-
-  // window.open(doc.output("bloburl"), "_blank");
-
   const finalY = doc.lastAutoTable.finalY + 10;
   const pageWidth = doc.internal.pageSize.width;
   const marginRight = 14;
   const rightAlignX = pageWidth - marginRight;
 
   doc.setFontSize(10);
-  // doc.setFont("Roboto", "normal");
 
   doc.text(`${t.subtotal}: ${total.toFixed(2)} €`, rightAlignX, finalY, {
     align: "right",

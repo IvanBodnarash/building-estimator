@@ -169,7 +169,8 @@ export default function AddWorkForm({
         );
       } else {
         const newWork = {
-          name: workName,
+          id: Date.now().toString(),
+          workName: workName,
           formula,
           unit,
           priceForUnit: Number(priceForUnit) || 0,
