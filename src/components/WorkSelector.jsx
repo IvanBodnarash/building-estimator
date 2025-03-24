@@ -12,6 +12,7 @@ export default function WorkSelector({
 }) {
   const [activeCategory, setActiveCategory] = useState(null);
   const [isMobile, setIsMobile] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);
 
   useEffect(() => {
     const checkIfMobile = () => setIsMobile(window.innerWidth < 768);
@@ -20,13 +21,6 @@ export default function WorkSelector({
     return () => window.removeEventListener("resize", checkIfMobile);
   }, []);
 
-  // const handleCategoryClick = (category, event) => {
-  //   event.stopPropagation();
-  //   setActiveCategory((prevCategory) =>
-  //     prevCategory === category ? null : category
-  //   );
-  // };
-
   const defaultCategory = useMemo(() => {
     return categories.length ? categories[0].category : null;
   }, [categories]);
@@ -34,20 +28,37 @@ export default function WorkSelector({
   const currentCategory = activeCategory || defaultCategory;
 
   const handleCategoryClick = (category, event) => {
-    event.stopPropagation();
+    if (!isMobile) {
+      event.stopPropagation();
+    }
     setActiveCategory(category);
+  };
+
+  const onWorkSelect = (rowId, workId) => {
+    handleWorkSelect(rowId, workId);
+    setMenuOpen(false);
   };
 
   return (
     <div className="relative w-full">
       <Menu as="div" className="relative inline-block text-left w-full">
-        <MenuButton className="border rounded md:p-2 p-1 flex justify-between items-center text-left bg-white shadow-sm">
+        <MenuButton
+          onClick={() => setMenuOpen((prev) => !prev)}
+          className="border rounded md:p-2 p-1 flex justify-between items-center text-left bg-white shadow-sm"
+        >
           {row.workName || "Select Work"}
           <ChevronRightIcon className="lg:w-5 lg:h-5 w-3 h-3 ml-2 text-gray-400" />
         </MenuButton>
 
         <Transition
           as={motion.div}
+          show={menuOpen}
+          enter="transition ease-out duration-100"
+          enterFrom="transform opacity-0 scale-95"
+          enterTo="transform opacity-100 scale-100"
+          leave="transition ease-in duration-75"
+          leaveFrom="transform opacity-100 scale-100"
+          leaveTo="transform opacity-0 scale-95"
           initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}
           exit={{ opacity: 0, scale: 0.95 }}
@@ -62,9 +73,15 @@ export default function WorkSelector({
                     handleCategoryClick(category.category, event)
                   }
                   onMouseEnter={() => {
-                    if (!isMobile) setActiveCategory(cat.category);
+                    if (!isMobile) setActiveCategory(category.category);
                   }}
-                  className="px-3 py-2 min-w-64 flex font-bold justify-between items-center cursor-pointer hover:bg-blue-100 text-gray-900"
+                  onTouchStart={(e) => {
+                    if (isMobile) {
+                      e.preventDefault();
+                      handleCategoryClick(category.category, e);
+                    }
+                  }}
+                  className="px-3 py-2 md:min-w-64 min-w-38 flex font-bold justify-between items-center cursor-pointer hover:bg-blue-100 text-gray-900"
                 >
                   {category.translations?.[estimateLanguage] ||
                     category.category}
@@ -88,13 +105,17 @@ export default function WorkSelector({
                     <div
                       key={work.id}
                       onClick={(e) => {
-                        e.preventDefault();
-                        e.stopPropagation();
-                        handleWorkSelect(row.id, work.id);
+                        if (!isMobile) {
+                          e.preventDefault();
+                          e.stopPropagation();
+                          onWorkSelect(row.id, work.id);
+                        }
                       }}
-                      onTouchStart={() => {
-                        // e.preventDefault();
-                        handleWorkSelect(row.id, work.id);
+                      onTouchStart={(e) => {
+                        if (isMobile) {
+                          e.preventDefault();
+                          onWorkSelect(row.id, work.id);
+                        }
                       }}
                       className="w-68 px-3 py-2 cursor-pointer hover:bg-cyan-950"
                     >

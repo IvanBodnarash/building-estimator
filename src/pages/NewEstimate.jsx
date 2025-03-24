@@ -270,27 +270,7 @@ export default function Estimate() {
     setTableRows((prevRows) => prevRows.filter((row) => row.id !== rowId));
   };
 
-  // const handleEdit = (row) => {
-  //   const selectedWork = works.find((w) => w.id === row.workId);
-
-  //   setEditingRow({
-  //     ...row,
-  //     translations: selectedWork ? selectedWork.translations : {},
-  //   });
-
-  //   setIsEditModalOpen(true);
-  // };
-
   const handleEdit = (row) => {
-    // const selectedWork = works.find((w) => String(w.id) === String(row.workId));
-    // setEditingRow({
-    //   ...row,
-    //   // Використовуємо переклади з selectedWork, якщо вони є, інакше fallback з row.translations
-    //   translations:
-    //     (selectedWork && selectedWork.translations) || row.translations || {},
-    // });
-    // setIsEditModalOpen(true);
-
     let updatedTranslations = {};
     if (row.workId) {
       updatedTranslations = row.translations || {};
@@ -303,200 +283,6 @@ export default function Estimate() {
     });
     setIsEditModalOpen(true);
   };
-
-  // const handleSaveEdit = async () => {
-  //   if (!editingRow || !editingRow.workId) {
-  //     console.error("Invalid editingRow or workId:", editingRow);
-  //     return;
-  //   }
-
-  //   if (editingRow.workId) {
-  //     const parentCategory = works.find(
-  //       (cat) =>
-  //         cat.works &&
-  //         cat.works.some((w) => String(w.id) === String(editingRow.workId))
-  //     );
-  //     if (!parentCategory) {
-  //       console.error(
-  //         "Parent category not found for work ID:",
-  //         editingRow.workId
-  //       );
-  //       return;
-  //     }
-
-  //     const workIndex = parentCategory.works.findIndex(
-  //       (w) => String(w.id) === String(editingRow.workId)
-  //     );
-  //     if (workIndex === -1) {
-  //       console.error(
-  //         "Work not found in parent category for work ID:",
-  //         editingRow.workId
-  //       );
-  //       return;
-  //     }
-
-  //     const selectedWork = parentCategory.works[workIndex];
-
-  //     const updatedWork = {
-  //       ...selectedWork,
-  //       workName: editingRow.workName,
-  //       translations: editingRow.translations,
-  //       formula: editingRow.formula,
-  //       unit: editingRow.unit,
-  //       priceForUnit: editingRow.priceForUnit,
-  //     };
-
-  //     const updatedWorksArray = [...parentCategory.works];
-  //     updatedWorksArray[workIndex] = updatedWork;
-
-  //     await db.works.update(parentCategory.id, {
-  //       works: updatedWorksArray,
-  //     });
-
-  //     loadWorks();
-
-  //     setTableRows((prevRows) =>
-  //       prevRows.map((row) =>
-  //         String(row.workId) === String(editingRow.workId)
-  //           ? {
-  //               ...row,
-  //               workName:
-  //                 updatedWork.translations[estimateLanguage] ||
-  //                 updatedWork.workName ||
-  //                 "Unnamed Work",
-  //               category: editingRow.category,
-  //               formula: editingRow.formula,
-  //               unit: editingRow.unit,
-  //               priceForUnit: editingRow.priceForUnit,
-  //               result: calculateFormula(updatedWork.formula, {
-  //                 a: row.quantity || 1,
-  //                 U: updatedWork.priceForUnit,
-  //               }),
-  //             }
-  //           : row
-  //       )
-  //     );
-
-  //     setIsEditModalOpen(false);
-  //   } else {
-  //     setTableRows((prevRows) =>
-  //       prevRows.map((row) =>
-  //         row.id === editingRow.id
-  //           ? {
-  //               ...editingRow,
-  //               workName:
-  //                 editingRow.translations[estimateLanguage] ||
-  //                 editingRow.workName ||
-  //                 "Unnamed Work",
-  //             }
-  //           : row
-  //       )
-  //     );
-
-  //     setIsEditModalOpen(false);
-  //   }
-
-  //   // const parentCategory = works.find(
-  //   //   (cat) => cat.works && cat.works.some((w) => w.id === editingRow.workId)
-  //   // );
-  //   // if (!parentCategory) {
-  //   //   console.error(
-  //   //     "Parent category not found for work ID:",
-  //   //     editingRow.workId
-  //   //   );
-  //   //   return;
-  //   // }
-
-  //   // const workIndex = parentCategory.works.findIndex(
-  //   //   (w) => w.id === editingRow.workId
-  //   // );
-  //   // if (workIndex === -1) {
-  //   //   console.error(
-  //   //     "Work not found in parent category for work ID:",
-  //   //     editingRow.workId
-  //   //   );
-  //   //   return;
-  //   // }
-
-  //   // const selectedWork = works.find((w) => w.id === editingRow.workId);
-  //   // const selectedWork = parentCategory.works[workIndex];
-
-  //   // const updatedWork = {
-  //   //   ...selectedWork,
-  //   //   workName: editingRow.workName,
-  //   //   translations: editingRow.translations,
-  //   //   formula: editingRow.formula,
-  //   //   unit: editingRow.unit,
-  //   //   priceForUnit: editingRow.priceForUnit,
-  //   // };
-
-  //   // const updatedWorksArray = [...parentCategory.works];
-  //   // updatedWorksArray[workIndex] = updatedWork;
-
-  //   // await db.works.update(parentCategory.id, {
-  //   //   works: updatedWorksArray,
-  //   // });
-
-  //   // loadWorks();
-
-  //   // if (!selectedWork) {
-  //   //   console.error("Work not found:", editingRow.workId);
-  //   //   return;
-  //   // }
-
-  //   // const updatedWork = {
-  //   //   ...selectedWork,
-  //   //   workName: editingRow.workName,
-  //   //   translations: editingRow.translations,
-  //   //   formula: editingRow.formula,
-  //   //   unit: editingRow.unit,
-  //   //   priceForUnit: editingRow.priceForUnit,
-  //   // };
-
-  //   // const updatedWorksArray = [...parentCategory.works];
-  //   // updatedWorksArray[workIndex] = updatedWork;
-
-  //   // await db.works.update(parentCategory.id, {
-  //   //   works: updatedWorksArray,
-  //   // });
-
-  //   // loadWorks();
-
-  //   // const updatedTranslations = editingRow.translations || {};
-
-  //   // await db.works.update(editingRow.workId, {
-  //   //   name: updatedTranslations["en"] || editingRow.workName,
-  //   //   category: editingRow.category,
-  //   //   translations: updatedTranslations,
-  //   //   formula: editingRow.formula,
-  //   //   unit: editingRow.unit,
-  //   //   priceForUnit: editingRow.priceForUnit,
-  //   // });
-
-  //   // loadWorks();
-
-  //   // setTableRows((prevRows) =>
-  //   //   prevRows.map((row) =>
-  //   //     String(row.workId) === String(editingRow.workId)
-  //   //       ? {
-  //   //           ...row,
-  //   //           workName:
-  //   //             updatedTranslations[estimateLanguage] || editingRow.workName,
-  //   //           category: editingRow.category,
-  //   //           formula: editingRow.formula,
-  //   //           unit: editingRow.unit,
-  //   //           priceForUnit: editingRow.priceForUnit,
-  //   //           result: calculateFormula(selectedWork.formula, {
-  //   //             a: row.quantity || 1,
-  //   //             U: selectedWork.priceForUnit,
-  //   //           }),
-  //   //         }
-  //   //       : row
-  //   //   )
-  //   // );
-
-  //   // setIsEditModalOpen(false);
-  // };
 
   const handleSaveEdit = async () => {
     if (!editingRow || !editingRow.workId) {
@@ -641,11 +427,6 @@ export default function Estimate() {
       return acc;
     }, []);
   }, [tableRows]);
-
-  console.log("TableRows:", tableRows);
-  console.log("NormalizedRows:", normalizedRows);
-  console.log("Selected Categories:", selectedCategories);
-  console.log("Works:", works);
 
   if (!estimate)
     return (
@@ -849,15 +630,6 @@ export default function Estimate() {
           </button>
         </div>
 
-        {/* <div className="flex items-center justify-center">
-          <button
-            onClick={addRow}
-            className="bg-cyan-800 hover:bg-cyan-700 text-white md:py-2 p-1 lg:px-24 md:px-20 sm:px-16 px-12 rounded-2xl m-2 cursor-pointer opacity-80"
-          >
-            <IoMdAdd className="lg:text-xl md:text-lg sm:text-md text-sm" />
-          </button>
-        </div> */}
-
         <div className="opacity-80 lg:text-lg md:text-md sm:text-sm text-xs">
           <div className="flex justify-between items-center">
             <h3>Total:</h3>
@@ -919,8 +691,8 @@ export default function Estimate() {
         </div>
 
         {isEditModalOpen && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center">
-            <div className="bg-white p-6 rounded-lg shadow-lg w-2/3">
+          <div className="fixed inset-0 bg-black bg-opacity-50 h-screen overflow-scroll pt-48 pb-8 flex justify-center items-center z-[9999]">
+            <div className="bg-white p-6 rounded-lg shadow-lg md:w-2/3 w-4/5">
               <h2 className="text-xl">{t("editWork")}</h2>
               <label htmlFor="name">{t("workName")}</label>
               <input
@@ -959,7 +731,7 @@ export default function Estimate() {
               <label className="block font-medium mb-2">
                 {t("translations")}
               </label>
-              <div className="border p-3 rounded bg-gray-50 flex flex-row gap-2">
+              <div className="border p-3 rounded bg-gray-50 flex md:flex-row flex-col gap-2">
                 {["en", "es", "uk", "ru"].map((lang) => (
                   <div key={lang} className="">
                     <label htmlFor={`name-${lang}`}>
