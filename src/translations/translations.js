@@ -58,6 +58,10 @@ const translations = {
     subtotal: "Subtotal",
     settings: "Settings",
     addCategory: "Add Category",
+    enterWorkName: "Enter work name",
+    clearDatabaseConfirmation: "Are you sure you want to clear the database?",
+    clearDatabase: "Clear Database",
+    noWorks: "No works available.",
   },
   es: {
     home: "Inicio",
@@ -119,6 +123,11 @@ const translations = {
     subtotal: "Subtotal",
     settings: "Ajustes",
     addCategory: "Agregar Categoria",
+    enterWorkName: "Ingrese el nombre del trabajo",
+    clearDatabaseConfirmation:
+      "¿Estas seguro de querer limpiar la base de datos?",
+    clearDatabase: "Limpiar base de datos",
+    noWorks: "No hay trabajos disponibles.",
   },
   uk: {
     home: "Головна",
@@ -178,6 +187,10 @@ const translations = {
     subtotal: "Підсумок",
     settings: "Налаштування",
     addCategory: "Додати Категорію",
+    enterWorkName: "Введіть назву роботи",
+    clearDatabaseConfirmation: "Ви впевнені, що хочете очистити базу даних?",
+    clearDatabase: "Очистити базу даних",
+    noWorks: "Немає доступних робіт.",
   },
   ru: {
     home: "Главная",
@@ -237,6 +250,10 @@ const translations = {
     subtotal: "Итого",
     settings: "Настройки",
     addCategory: "Добавить Категорию",
+    enterWorkName: "Введите название работы",
+    clearDatabaseConfirmation: "Вы уверены, что хотите очистить базу данных?",
+    clearDatabase: "Очистить базу данных",
+    noWorks: "Нет доступных работ.",
   },
 };
 

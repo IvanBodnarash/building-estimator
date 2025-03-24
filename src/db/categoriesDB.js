@@ -31,6 +31,16 @@ export const categories = [
   },
   {
     id: 4,
+    category: "Concreting",
+    translations: {
+      en: "Concreting",
+      es: "Hormigonado",
+      uk: "Бетонування",
+      ru: "Бетонирование",
+    },
+  },
+  {
+    id: 5,
     category: "Electrical",
     translations: {
       en: "Electrical",
@@ -40,7 +50,7 @@ export const categories = [
     },
   },
   {
-    id: 5,
+    id: 6,
     category: "Masonry",
     translations: {
       en: "Masonry",
@@ -50,7 +60,7 @@ export const categories = [
     },
   },
   {
-    id: 6,
+    id: 7,
     category: "Demolition",
     translations: {
       en: "Demolition",
@@ -60,7 +70,7 @@ export const categories = [
     },
   },
   {
-    id: 7,
+    id: 8,
     category: "Exterior Works",
     translations: {
       en: "Exterior Works",
@@ -70,7 +80,7 @@ export const categories = [
     },
   },
   {
-    id: 8,
+    id: 9,
     category: "Other Works",
     translations: {
       en: "Other Works",

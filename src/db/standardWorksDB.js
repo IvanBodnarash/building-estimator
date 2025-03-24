@@ -229,6 +229,60 @@ const standardWorksDB = [
       },
     ],
   },
+  {
+    id: 5,
+    category: "Concreting",
+    translations: {
+      en: "Concreting",
+      es: "Hormigonado",
+      uk: "Бетонування",
+      ru: "Бетонирование",
+    },
+    works: [
+      {
+        id: "5.1",
+        workName: "Installation of Concrete Pavement for 200mm Thickness",
+        translations: {
+          en: "Installation of Concrete Pavement for 200mm Thickness",
+          es: "Instalación de pavimento de hormigón para un espesor de 200 mm",
+          uk: "Влаштування бетонного покриття для товщини 200 мм",
+          ru: "Устройство бетонного покрытия для толщины 200 мм",
+        },
+        unit: "m2",
+        formula: "a * U",
+        quantity: 0,
+        priceForUnit: 50,
+      },
+      {
+        id: "5.2",
+        workName: "Formwork Setup for Concrete Pavement",
+        translations: {
+          en: "Formwork Setup for Concrete Pavement",
+          es: "Instalación de encofrado para pavimento de hormigón",
+          uk: "Монтаж опалубки для бетонного покриття",
+          ru: "Монтаж опалубки для бетонного покрытия",
+        },
+        unit: "m2",
+        formula: "a * U",
+        quantity: 0,
+        priceForUnit: 30,
+      },
+      {
+        id: "5.3",
+        workName: "Reinforcement Installation for Concrete Pavement",
+        translations: {
+          en: "Reinforcement Installation for Concrete Pavement",
+          es: "Instalación de refuerzo para pavimento de hormigón",
+          uk: "Встановлення арматури для бетонного покриття",
+          ru: "Установка арматуры для бетонного покрытия",
+        },
+        unit: "m2",
+        formula: "a * U",
+        quantity: 0,
+        priceForUnit: 25,
+      },
+    ],
+  },
 ];
 
 export default standardWorksDB;
