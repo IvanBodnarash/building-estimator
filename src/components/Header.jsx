@@ -10,10 +10,13 @@ export default function Header() {
     useContext(LanguageContext);
 
   return (
-    <div className="flex flex-row gap-4 justify-between items-center lg:mx-38 md:mx-24 sm:mx-14 mx-4 md:px-8 sm:px-4 px-2 sm:py-6 py-4 border-x border-gray-700">
-      <h1 className="lg:text-2xl md:text-xl sm:text-lg text-sm font-bold italic text-slate-800">
-        building estimator 1.0
-      </h1>
+    <div className="flex flex-row gap-4 justify-between items-center lg:mx-38 md:mx-24 sm:mx-14 mx-4 md:px-8 sm:px-4 px-2 sm:py-4 py-2 border-x border-gray-700">
+      <div className="flex flex-row justify-center items-center">
+        <img src="../../public/icon.png" alt="logo" className="md:w-14 sm:w-12 w-8" />
+        <h1 className="lg:text-2xl md:text-xl sm:text-lg text-sm font-bold italic text-slate-800">
+          building estimator 1.0
+        </h1>
+      </div>
       <div className="flex flex-row justify-center items-center gap-4">
         <NavLink
           to="/"
@@ -29,8 +32,10 @@ export default function Header() {
             isActive,
           }) => (isActive ? "active" : "")}`}
         >
-          <IoSettingsSharp size={20} className="hover:text-slate-600 hover:scale-110 hover:rotate-90 transition-all ease-in-out" />
-          {/* {t("settings")} */}
+          <IoSettingsSharp
+            size={20}
+            className="hover:text-slate-600 hover:scale-110 hover:rotate-90 transition-all ease-in-out"
+          />
         </NavLink>
         <select
           className="text-slate-800 cursor-pointer outline-none md:text-[16px] sm:text-[14px] text-[12px]"
@@ -44,7 +49,6 @@ export default function Header() {
           <option value="uk">UK</option>
           <option value="ru">RU</option>
         </select>
-        {/* <NavLink to="/create-new">Create New</NavLink> */}
       </div>
     </div>
   );
