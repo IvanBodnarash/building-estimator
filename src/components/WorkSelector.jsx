@@ -51,7 +51,7 @@ export default function WorkSelector({
           if (!isMobile) setActiveCategory(cat.category);
         }}
         onTouchStart={(e) => {
-          e.preventDefault();
+          // e.preventDefault();
           handleCategoryClick(cat.category, e);
         }}
         className="px-3 py-2 md:min-w-64 min-w-38 flex font-bold justify-between items-center cursor-pointer hover:bg-blue-100 text-gray-900"
@@ -89,42 +89,38 @@ export default function WorkSelector({
   return (
     <div className="relative w-full">
       <Menu as="div" className="relative inline-block text-left w-full">
-        {({ close }) => (
-          <>
-            <MenuButton
-              onClick={() => setMenuOpen((prev) => !prev)}
-              className="border rounded md:p-2 p-1 flex justify-between items-center text-left bg-white shadow-sm"
-            >
-              {row.workName || "Select Work"}
-              <ChevronRightIcon className="lg:w-5 lg:h-5 w-3 h-3 ml-2 text-gray-400" />
-            </MenuButton>
-            <Transition
-              as={motion.div}
-              show={menuOpen}
-              enter="transition ease-out duration-100"
-              enterFrom="transform opacity-0 scale-95"
-              enterTo="transform opacity-100 scale-100"
-              leave="transition ease-in duration-75"
-              leaveFrom="transform opacity-100 scale-100"
-              leaveTo="transform opacity-0 scale-95"
-              className="absolute mt-1 bg-gray-50 shadow-lg border max-h-120 overflow-auto z-50 rounded-b-xl"
-            >
-              <div className="flex">
-                <div className="border-r">{renderCategoryList()}</div>
-                {currentCategory && (
-                  <motion.div
-                    initial={{ opacity: 0, x: 10 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    exit={{ opacity: 0, x: 10 }}
-                    className="bg-cyan-800 text-slate-200 shadow-lg"
-                  >
-                    {renderWorkList()}
-                  </motion.div>
-                )}
-              </div>
-            </Transition>
-          </>
-        )}
+        <MenuButton
+          onClick={() => setMenuOpen((prev) => !prev)}
+          className="border rounded md:p-2 p-1 flex justify-between items-center text-left bg-white shadow-sm"
+        >
+          {row.workName || "Select Work"}
+          <ChevronRightIcon className="lg:w-5 lg:h-5 w-3 h-3 ml-2 text-gray-400" />
+        </MenuButton>
+        <Transition
+          as={motion.div}
+          show={menuOpen}
+          enter="transition ease-out duration-100"
+          enterFrom="transform opacity-0 scale-95"
+          enterTo="transform opacity-100 scale-100"
+          leave="transition ease-in duration-75"
+          leaveFrom="transform opacity-100 scale-100"
+          leaveTo="transform opacity-0 scale-95"
+          className="absolute mt-1 bg-gray-50 shadow-lg border max-h-120 overflow-auto z-50 rounded-b-xl"
+        >
+          <div className="flex">
+            <div className="border-r">{renderCategoryList()}</div>
+            {currentCategory && (
+              <motion.div
+                initial={{ opacity: 0, x: 10 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: 10 }}
+                className="bg-cyan-800 text-slate-200 shadow-lg"
+              >
+                {renderWorkList()}
+              </motion.div>
+            )}
+          </div>
+        </Transition>
       </Menu>
     </div>
   );

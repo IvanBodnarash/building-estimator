@@ -1,4 +1,3 @@
-
 // import { useContext, useEffect, useState } from "react";
 // import { FaPlus } from "react-icons/fa";
 // import { useNavigate } from "react-router-dom";
@@ -124,7 +123,7 @@ import { LanguageContext } from "../context/LanguageContext";
 
 export default function MainPage() {
   const { t } = useContext(LanguageContext);
-  const { estimates, addEstimate, deleteEstimate } = useEstimates();
+  const { estimates, addEstimate, deleteEstimate } = useEstimates({ t });
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   return (

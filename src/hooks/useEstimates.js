@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { db } from "../db/db";
 
-export default function useEstimates() {
+export default function useEstimates({ t }) {
   const [estimates, setEstimates] = useState([]);
 
   const loadEstimates = async () => {
@@ -25,11 +25,18 @@ export default function useEstimates() {
 
   const deleteEstimate = async (estimateId) => {
     try {
-      await db.estimates.delete(estimateId);
-      if (db.estimateWorks) {
-        await db.estimateWorks.where("estimateId").equals(estimateId).delete();
+      if (confirm(t("deleteEstimateConfirmation"))) {
+        await db.estimates.delete(estimateId);
+        if (db.estimateWorks) {
+          await db.estimateWorks
+            .where("estimateId")
+            .equals(estimateId)
+            .delete();
+        }
+        setEstimates((prevEstimates) =>
+          prevEstimates.filter((estimate) => estimate.id !== estimateId)
+        );
       }
-      setEstimates((prev) => prev.filter((est) => est.id !== estimateId));
     } catch (error) {
       console.error("Error deleting estimate:", error);
     }
