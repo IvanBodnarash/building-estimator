@@ -6,7 +6,7 @@ export default function useWorkForm() {
   const [formula, setFormula] = useState("a * U");
   const [unit, setUnit] = useState("m2");
   //   const [works, setWorks] = useState([]);
-  const [priceForUnit, setPriceForUnit] = useState();
+  const [priceForUnit, setPriceForUnit] = useState("");
   const [variables, setVariables] = useState([]);
   const [translations, setTranslations] = useState({
     en: "",

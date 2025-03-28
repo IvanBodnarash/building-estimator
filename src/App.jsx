@@ -7,6 +7,7 @@ import NewEstimate from "./pages/NewEstimate";
 import MainLayout from "./components/MainLayout";
 import { LanguageProvider } from "./context/LanguageContext";
 import SettingsPage from "./pages/SettingsPage";
+import { DialogProvider } from "./context/DialogContext";
 
 const router = createBrowserRouter([
   {
@@ -24,7 +25,9 @@ const router = createBrowserRouter([
 export default function App() {
   return (
     <LanguageProvider>
-      <RouterProvider router={router} />
+      <DialogProvider>
+        <RouterProvider router={router} />
+      </DialogProvider>
     </LanguageProvider>
   );
 }

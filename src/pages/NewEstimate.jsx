@@ -1,26 +1,20 @@
-import React, { useContext, useEffect, useMemo, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 
-import { evaluate } from "mathjs";
 import { motion } from "framer-motion";
 
-import standardWorksDB from "../db/standardWorksDB";
-import { categories as allCategories, categories } from "../db/categoriesDB";
+import { categories as allCategories } from "../db/categoriesDB";
 import { db } from "../db/db";
 
 import formatDate from "../utils/formatDate";
-import generatePDF from "../utils/generatePDF";
 
 import { LanguageContext } from "../context/LanguageContext";
 
-import { MdModeEdit } from "react-icons/md";
-import { RiDeleteBin2Fill } from "react-icons/ri";
-
-import AddWorkForm from "../components/AddWork";
-import WorkSelector from "../components/WorkSelector";
 import useWorks from "../hooks/useWorks";
 import useEstimate from "../hooks/useEstimate";
-import { normalizedRowsHelper } from "../helpers/estimateTableHelpers";
+import { calculateFormula } from "../helpers/estimateTableHelpers";
+
+import AddWorkForm from "../components/AddWork";
 import EstimateTable from "../components/EstimateTable";
 import EditWorkModal from "../components/EditWorkModal";
 import EstimateHeader from "../components/EstimateHeader";
@@ -102,60 +96,6 @@ export default function Estimate() {
       })
     );
   }, [estimateLanguage, works]);
-
-  // const addCategory = () => {
-  //   if (!selectedCategory) return;
-
-  //   if (selectedCategories.some((cat) => cat.category === selectedCategory))
-  //     return;
-
-  //   const maxId =
-  //     selectedCategories.length > 0
-  //       ? Math.max(...selectedCategories.map((cat) => cat.id))
-  //       : 0;
-
-  //   const newCategory = {
-  //     id: maxId + 1,
-  //     category: selectedCategory,
-  //   };
-
-  //   setSelectedCategories((prev) => [...prev, newCategory]);
-  //   setSelectedCategory("");
-  // };
-
-  const calculateFormula = (formula, variables) => {
-    if (!formula) return 0;
-    try {
-      return evaluate(formula, variables);
-    } catch (error) {
-      return "Error";
-    }
-  };
-
-  // const handleSaveEstimate = async () => {
-  //   if (!estimate || tableRows.length === 0) {
-  //     alert(t("addingOneWorkAlert"));
-  //     return;
-  //   }
-
-  //   const updatedEstimate = {
-  //     ...estimate,
-  //     works: tableRows,
-  //     categories: selectedCategories,
-  //   };
-
-  //   await db.estimates.update(Number(estimateId), updatedEstimate);
-  //   await db.categories.where("estimateId").equals(Number(estimateId)).delete();
-  //   await db.categories.bulkAdd(
-  //     selectedCategories.map((cat) => ({
-  //       estimateId: Number(estimateId),
-  //       categoryName: cat.category,
-  //     }))
-  //   );
-
-  //   loadEstimate();
-  //   alert(t("savingEstimateSuccess"));
-  // };
 
   if (!estimate)
     return (

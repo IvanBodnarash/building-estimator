@@ -62,6 +62,7 @@ const translations = {
     clearDatabaseConfirmation: "Are you sure you want to clear the database?",
     clearDatabase: "Clear Database",
     noWorks: "No works available.",
+    estimateDeletedSuccess: "Estimate deleted successfully!",
   },
   es: {
     home: "Inicio",
@@ -128,6 +129,7 @@ const translations = {
       "¿Estas seguro de querer limpiar la base de datos?",
     clearDatabase: "Limpiar base de datos",
     noWorks: "No hay trabajos disponibles.",
+    estimateDeletedSuccess: "Presupuesto eliminado con exito",
   },
   uk: {
     home: "Головна",
@@ -191,6 +193,7 @@ const translations = {
     clearDatabaseConfirmation: "Ви впевнені, що хочете очистити базу даних?",
     clearDatabase: "Очистити базу даних",
     noWorks: "Немає доступних робіт.",
+    estimateDeletedSuccess: "Кошторис успішно видалено!",
   },
   ru: {
     home: "Главная",
@@ -254,6 +257,7 @@ const translations = {
     clearDatabaseConfirmation: "Вы уверены, что хотите очистить базу данных?",
     clearDatabase: "Очистить базу данных",
     noWorks: "Нет доступных работ.",
+    estimateDeletedSuccess: "Смета успешно удалена!",
   },
 };
 
