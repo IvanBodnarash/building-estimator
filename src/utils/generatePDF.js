@@ -24,7 +24,7 @@ const generatePDF = (
   const t = translations[estimateLanguage] || translations["en"];
 
   const doc = new jsPDF();
-  doc.addFont("../../public/fonts/Roboto-Regular.ttf", "Roboto", "normal");
+  doc.addFont("/fonts/Roboto-Regular.ttf", "Roboto", "normal");
   doc.setFont("Roboto");
 
   // Document header
