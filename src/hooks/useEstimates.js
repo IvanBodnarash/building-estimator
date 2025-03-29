@@ -14,7 +14,7 @@ export default function useEstimates({ t }) {
       console.error("Error loading estimates:", error);
       await showDialog({
         message: "Error loading estimates",
-        type: "alert",
+        type: "error",
         duration: 3000,
       });
     }
@@ -29,7 +29,7 @@ export default function useEstimates({ t }) {
       console.error("Error adding estimate:", error);
       await showDialog({
         message: "Error loading estimate",
-        type: "alert",
+        type: "error",
         duration: 3000,
       });
     }

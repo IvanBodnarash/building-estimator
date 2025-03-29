@@ -1,6 +1,4 @@
 import { motion, AnimatePresence } from "framer-motion";
-import { dialog } from "framer-motion/client";
-import { resolve } from "mathjs";
 import { createContext, useCallback, useContext, useState } from "react";
 
 const DialogContext = createContext();
@@ -14,21 +12,18 @@ export function DialogProvider({ children }) {
   });
 
   const showDialog = useCallback(
-    ({ message, type = "alert", duration = 3000 }) => {
+    ({ message, type = "alert" || "error", duration = 5000 }) => {
       return new Promise((resolve) => {
         setDialogState({ isOpen: true, message, type, resolve });
-        if (type === "alert") {
+        if (type === "alert" || "error") {
           setTimeout(() => {
-            setDialogState(
-              {
-                isOpen: false,
-                message: "",
-                type,
-                resolve: null,
-              },
-              duration
-            );
-          });
+            setDialogState({
+              isOpen: false,
+              message: "",
+              type,
+              resolve: null,
+            });
+          }, duration);
         }
       });
     },
@@ -76,13 +71,13 @@ export function DialogProvider({ children }) {
                   <p className="mb-4">{dialogState.message}</p>
                   <div className="flex justify-end gap-2">
                     <button
-                      className="px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-400"
+                      className="px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-400 cursor-pointer"
                       onClick={handleCancel}
                     >
                       Cancel
                     </button>
                     <button
-                      className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+                      className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 cursor-pointer"
                       onClick={handleConfirm}
                     >
                       OK
@@ -97,9 +92,22 @@ export function DialogProvider({ children }) {
                 animate={{ x: 0, opacity: 1 }}
                 exit={{ x: 100, opacity: 0 }}
                 transition={{ duration: 0.5 }}
-                className="fixed bottom-4 right-4 bg-green-600 text-white p-3 rounded-lg shadow-lg z-[9999]"
+                className="fixed bottom-8 right-4 bg-green-600 text-white p-3 rounded-lg shadow-lg z-[9999]"
               >
-                <h2 className="lg:text-xl md:text-lg sm:text-md text-sm font-bold opacity-70">
+                <h2 className="lg:text-xl md:text-lg sm:text-md text-sm font-bold opacity-80">
+                  {dialogState.message}
+                </h2>
+              </motion.div>
+            )}
+            {dialogState.type === "error" && (
+              <motion.div
+                initial={{ x: 100, opacity: 0 }}
+                animate={{ x: 0, opacity: 1 }}
+                exit={{ x: 100, opacity: 0 }}
+                transition={{ duration: 0.5 }}
+                className="fixed bottom-8 right-4 bg-red-600 text-white p-3 rounded-lg shadow-lg z-[9999]"
+              >
+                <h2 className="lg:text-xl md:text-lg sm:text-md text-sm font-bold opacity-80">
                   {dialogState.message}
                 </h2>
               </motion.div>

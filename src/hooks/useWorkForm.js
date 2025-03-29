@@ -5,7 +5,6 @@ export default function useWorkForm() {
   const [category, setCategory] = useState("");
   const [formula, setFormula] = useState("a * U");
   const [unit, setUnit] = useState("m2");
-  //   const [works, setWorks] = useState([]);
   const [priceForUnit, setPriceForUnit] = useState("");
   const [variables, setVariables] = useState([]);
   const [translations, setTranslations] = useState({
@@ -14,7 +13,6 @@ export default function useWorkForm() {
     uk: "",
     ru: "",
   });
-  const [isSuccess, setIsSuccess] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
 
   useEffect(() => {
@@ -62,16 +60,12 @@ export default function useWorkForm() {
     setFormula,
     unit,
     setUnit,
-    // works,
-    // setWorks,
     priceForUnit,
     setPriceForUnit,
     variables,
     setVariables,
     translations,
     setTranslations,
-    isSuccess,
-    setIsSuccess,
     isOpen,
     setIsOpen,
     handleFormulaChange,

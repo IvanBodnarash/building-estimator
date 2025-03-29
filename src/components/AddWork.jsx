@@ -5,6 +5,7 @@ import { categories } from "../db/categoriesDB";
 import { LanguageContext } from "../context/LanguageContext";
 import useWorkForm from "../hooks/useWorkForm";
 import submitWork from "../helpers/submitWork";
+import { useDialog } from "../context/DialogContext";
 
 export default function AddWorkForm({
   onWorkAdded,
@@ -25,14 +26,13 @@ export default function AddWorkForm({
     setPriceForUnit,
     variables,
     translations,
-    isSuccess,
-    setIsSuccess,
     isOpen,
     setIsOpen,
     handleFormulaChange,
     handleTranslationChange,
     clearForm,
   } = useWorkForm();
+  const { showDialog } = useDialog();
 
   useEffect(() => {
     if (editingWork) {
@@ -82,14 +82,17 @@ export default function AddWorkForm({
         },
         db
       );
-      setIsSuccess(true);
-      setTimeout(() => setIsSuccess(false), 3000);
     } catch (error) {
       console.error("Error adding/updating work:", error);
     }
 
     clearForm();
     setEditingWork(null);
+    await showDialog({
+      message: `✅ ${t("savingWorkSuccess")}` || "Work saved successfully!",
+      type: "alert",
+      duration: 3000,
+    });
     if (onWorkAdded) {
       onWorkAdded();
     }
@@ -252,19 +255,6 @@ export default function AddWorkForm({
                 {t("save")}
               </button>
             </form>
-            {isSuccess && (
-              <motion.div
-                initial={{ x: 100, opacity: 0 }}
-                animate={{ x: 0, opacity: 1 }}
-                exit={{ x: 100, opacity: 0 }}
-                transition={{ duration: 0.5 }}
-                className="fixed bottom-4 right-4 bg-green-600 text-white p-3 rounded-lg shadow-lg z-[99]"
-              >
-                <h2 className="lg:text-xl md:text-lg sm:text-md text-sm font-bold opacity-70">
-                  {`✅ ${t("savingWorkSuccess")}`}
-                </h2>
-              </motion.div>
-            )}
           </motion.div>
         )}
       </AnimatePresence>

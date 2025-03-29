@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { Menu, MenuButton, Transition } from "@headlessui/react";
 import { motion } from "framer-motion";
 import { ChevronRightIcon } from "@heroicons/react/24/solid";
@@ -73,9 +73,9 @@ export default function WorkSelector({
             onWorkSelect(row.id, work.id);
           }
         }}
-        onTouchStart={(e) => {
+        onTouchStart={() => {
           if (isMobile) {
-            e.preventDefault();
+            // e.preventDefault();
             onWorkSelect(row.id, work.id);
           }
         }}

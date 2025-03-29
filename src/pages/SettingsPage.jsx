@@ -3,10 +3,15 @@ import { db } from "../db/db";
 import { LanguageContext } from "../context/LanguageContext";
 // import { MdModeEdit } from "react-icons/md";
 import { RiDeleteBin2Fill } from "react-icons/ri";
+import { useDialog } from "../context/DialogContext";
+import { useNavigate } from "react-router-dom";
 
 export default function Settings() {
   const { t, interfaceLanguage } = useContext(LanguageContext);
   const [categoriesWorks, setCategoriesWorks] = useState([]);
+  const { showDialog } = useDialog();
+
+  const navigate = useNavigate();
 
   const loadWorks = async () => {
     try {
@@ -22,12 +27,13 @@ export default function Settings() {
   }, []);
 
   const handleDeleteWork = async (categoryId, workId) => {
-    if (
-      window.confirm(
+    const confirmed = await showDialog({
+      message:
         t("deleteWorkConfirmation") ||
-          "Are you sure you want to delete this work?"
-      )
-    ) {
+        "Are you sure you want to delete this work?",
+      type: "confirm",
+    });
+    if (confirmed) {
       try {
         const categoryRecord = categoriesWorks.find(
           (cat) => cat.id === categoryId
@@ -40,6 +46,11 @@ export default function Settings() {
         loadWorks();
       } catch (error) {
         console.error("Error deleting work:", error);
+        await showDialog({
+          message: `❌ Error deleting work: ${error}`,
+          type: "error",
+          duration: 3000,
+        });
       }
     }
   };
@@ -68,18 +79,33 @@ export default function Settings() {
   // };
 
   const handleClearDB = async () => {
-    if (
-      window.confirm(
+    const confirmed = await showDialog({
+      message:
         t("clearDatabaseConfirmation") ||
-          "Are you sure you want to clear the entire database?"
-      )
-    ) {
+        "Are you sure you want to clear the entire database?",
+      type: "confirm",
+    });
+    if (confirmed) {
       try {
         await db.delete();
-        alert(t("databaseCleared") || "Database cleared!");
-        window.location.reload();
+        await showDialog({
+          message:
+            `✅ ${t("databaseClearedSuccess")}` ||
+            "✅ Database cleared successfully!",
+          type: "alert",
+          duration: 3000,
+        });
+        setTimeout(() => {
+          window.location.reload();
+        }, 1000);
+        loadWorks();
       } catch (error) {
         console.error("Error clearing database:", error);
+        await showDialog({
+          message: `❌ Error clearing database: ${error}`,
+          type: "error",
+          duration: 3000,
+        });
       }
     }
   };
@@ -103,7 +129,10 @@ export default function Settings() {
         <div className="h-screen">{t("noWorks") || "No works available"}</div>
       ) : (
         categoriesWorks.map((category) => (
-          <div key={category.id} className="mb-6 border p-4 rounded overflow-x-auto">
+          <div
+            key={category.id}
+            className="mb-6 border p-4 rounded overflow-x-auto"
+          >
             <h2 className="lg:text-xl md:text-lg sm:text-base text-sm font-bold mb-2">
               {category.translations?.[interfaceLanguage] || category.category}
             </h2>

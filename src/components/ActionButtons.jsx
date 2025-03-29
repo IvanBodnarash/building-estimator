@@ -1,5 +1,6 @@
 import generatePDF from "../utils/generatePDF";
 import { db } from "../db/db";
+import { useDialog } from "../context/DialogContext";
 
 export default function ActionButtons({
   estimate,
@@ -13,9 +14,16 @@ export default function ActionButtons({
   t,
   estimateId,
 }) {
+  const { showDialog } = useDialog();
+
   const handleSaveEstimate = async () => {
     if (!estimate || tableRows.length === 0) {
-      alert(t("addingOneWorkAlert"));
+      await showDialog({
+        message:
+          `❌ ${t("addingOneWorkAlert")}` || "❌ Please add at least one work!",
+        type: "error",
+        duration: 3000,
+      });
       return;
     }
 
@@ -35,6 +43,11 @@ export default function ActionButtons({
     );
 
     loadEstimate();
+    await showDialog({
+      type: "alert",
+      message:
+        `✅ ${t("savingEstimateSuccess")}` || "✅ Estimate saved successfully!",
+    });
     alert(t("savingEstimateSuccess"));
   };
 
