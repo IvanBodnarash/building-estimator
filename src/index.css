@@ -12,3 +12,10 @@
     padding: 0; */
     font-family: "Helvetica", sans-serif;
 }
+
+input,
+select,
+textarea {
+    -webkit-appearance: none;
+    appearance: none;
+}

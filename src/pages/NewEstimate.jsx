@@ -105,7 +105,7 @@ export default function Estimate() {
     );
 
   return (
-    <div className="lg:mx-38 md:mx-24 sm:mx-14 mx-4 border-x border-gray-700 px-4 py-8 overflow-hidden relative bg-gray-950/[2.5%] after:pointer-events-none after:absolute after:inset-0 after:rounded-lg after:inset-ring after:inset-ring-gray-950/5 bg-[radial-gradient(var(--pattern-fg)_1px,_transparent_0)] bg-[size:10px_10px] bg-fixed [--pattern-fg:var(--color-gray-300)]">
+    <div className="lg:mx-38 md:mx-24 sm:mx-14 h-screen mx-4 border-x border-gray-700 px-4 py-8 overflow-hidden relative bg-gray-950/[2.5%] after:pointer-events-none after:absolute after:inset-0 after:rounded-lg after:inset-ring after:inset-ring-gray-950/5 bg-[radial-gradient(var(--pattern-fg)_1px,_transparent_0)] bg-[size:10px_10px] bg-fixed [--pattern-fg:var(--color-gray-300)]">
       <div className="flex flex-col lg:gap-4 md:gap-3 sm:gap-2 gap-1">
         <h1 className="lg:text-4xl md:text-3xl sm:text-2xl text-xl text-cyan-950/80 font-bold whitespace-normal break-words">
           {estimate.name}
