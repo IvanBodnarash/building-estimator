@@ -1,5 +1,9 @@
 # Building Price Estimator
 
+<p align="center">
+  <img src="./public/screenshots/2.png" alt="Project Screenshot" width="600"/>
+</p>
+
 **Building Price Estimator** is a web application that helps users calculate the estimated cost of constructing residential or commercial buildings. It offers a user-friendly interface to input various construction parameters and calculate cost with PDF document generation.
 
 ## Features
@@ -12,6 +16,10 @@
 - PDF document generation
 - Smooth animations and transitions with Framer Motion
 - Responsive design optimized for mobile and desktop
+
+<p align="center">
+  <img src="./public/screenshots/1.png" alt="Project Screenshot" width="600"/>
+</p>
 
 ## Screenshots
 
